@@ -1,0 +1,6 @@
+/build/bin/
+/build/**/*.icns
+/build/**/*.app/
+/csnative
+*.log
+.DS_Store

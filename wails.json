@@ -1,0 +1,17 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "CSNative",
+  "outputfilename": "CS Native",
+  "frontend:dir": "internal/desktop/frontend/dist",
+  "frontend:install": "",
+  "frontend:build": "",
+  "frontend:dev:watcher": "",
+  "author": {
+    "name": "CS Native"
+  },
+  "info": {
+    "productName": "CS Native",
+    "productVersion": "0.1.0",
+    "copyright": "MIT"
+  }
+}
