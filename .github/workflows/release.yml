@@ -63,7 +63,7 @@ jobs:
             archive: zip
           - id: macos-amd64
             label: macOS Intel
-            os: macos-13
+            os: macos-15-intel
             asset_suffix: darwin-amd64
             archive: zip
           - id: windows-amd64
