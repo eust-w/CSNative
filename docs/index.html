@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CS Native | Claude Science 本地 provider/runtime control plane</title>
+    <meta
+      name="description"
+      content="CS Native 是面向 Claude Science 的本地 provider/runtime control plane，支持多供应商模型路由、沙箱、fresh nonce 和官方 Claude 独立入口。"
+    />
+    <meta name="theme-color" content="#0f172a" />
+    <meta property="og:title" content="CS Native" />
+    <meta
+      property="og:description"
+      content="本地 provider/runtime control plane：把 Claude Science 放进沙箱，把模型请求路由到你配置的 provider。"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="assets/readme/hero-start.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="CS Native 首页">
+        <span class="brand-mark">CSN</span>
+        <span>
+          <strong>CS Native</strong>
+          <small>by eust-w</small>
+        </span>
+      </a>
+      <nav class="nav" aria-label="主导航">
+        <a href="#workflow">流程</a>
+        <a href="#providers">Provider</a>
+        <a href="#screens">界面</a>
+        <a href="#download">下载</a>
+      </nav>
+      <a class="header-action" href="https://github.com/eust-w/CSNative/releases/latest">下载</a>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-media" aria-hidden="true">
+          <img src="assets/readme/hero-start.png" alt="" />
+        </div>
+        <div class="hero-inner">
+          <div class="hero-copy">
+            <h1 id="hero-title">CS Native</h1>
+            <p class="hero-lede">
+              Claude Science 的本地 provider/runtime control plane。配置你自己的模型供应商，启动代理、虚拟 OAuth、沙箱 Science 和 fresh nonce 入口。
+            </p>
+            <div class="hero-actions">
+              <a class="button primary" href="https://github.com/eust-w/CSNative/releases/latest">下载最新版</a>
+              <a class="button secondary" href="https://github.com/eust-w/CSNative">查看源码</a>
+            </div>
+          </div>
+          <dl class="hero-facts" aria-label="产品能力">
+            <div>
+              <dt>多 provider</dt>
+              <dd>DeepSeek、Qwen、OpenRouter、Kimi、SiliconFlow、Ollama 与自定义兼容端点。</dd>
+            </div>
+            <div>
+              <dt>沙箱边界</dt>
+              <dd>只写入 <code>~/.csnative</code>，不触碰真实 Claude Science 凭证目录。</dd>
+            </div>
+            <div>
+              <dt>一键启动</dt>
+              <dd>Provider → 本地代理 → 虚拟 OAuth → 沙箱 Science → fresh URL。</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="intro-band" aria-label="产品定位">
+        <div class="intro-grid">
+          <p>
+            CS Native 不是单一的 DeepSeek/Qwen 切换器，而是把模型凭证、provider profile、网络端口、日志诊断和运行入口放在一起管理的本地控制面板。
+          </p>
+          <img src="assets/readme/csn-flow.gif" alt="CS Native 页面流程动图" />
+        </div>
+      </section>
+
+      <section id="workflow" class="section">
+        <div class="section-heading">
+          <h2>从配置到启动，路径固定清晰</h2>
+          <p>先在“模型与凭证”里管理 provider，再回到“启动”页选择已配置的 provider，一键启动完整本地链路。</p>
+        </div>
+        <ol class="workflow">
+          <li>
+            <span>01</span>
+            <strong>配置 provider</strong>
+            <p>填写 base URL、API key、adapter、默认模型和 Science 模型映射。</p>
+          </li>
+          <li>
+            <span>02</span>
+            <strong>验证可用性</strong>
+            <p>检查 key、base URL、模型和 adapter，确认 provider 可进入启动页。</p>
+          </li>
+          <li>
+            <span>03</span>
+            <strong>启动沙箱</strong>
+            <p>一键启动本地代理、虚拟 OAuth、沙箱 Science 和 fresh nonce 入口。</p>
+          </li>
+          <li>
+            <span>04</span>
+            <strong>保留官方模式</strong>
+            <p>需要真实 Claude Science 时，切换到官方 Claude 模式独立打开。</p>
+          </li>
+        </ol>
+      </section>
+
+      <section id="providers" class="section split-section">
+        <div class="section-copy">
+          <h2>模型与凭证放在同一个地方</h2>
+          <p>
+            同页管理 provider、API key、base URL、adapter、默认模型和 Claude Science 模型映射。启动页只显示启用且有 key 的 provider，避免隐藏全局状态造成误选。
+          </p>
+          <ul class="check-list">
+            <li>内置 OpenAI Chat Completions 与 Anthropic Messages 两类 adapter。</li>
+            <li>每个 provider 都可编辑模型列表、默认模型和 Science 模型映射。</li>
+            <li>缺 key、未验证、已验证状态会直接反馈到启动页。</li>
+          </ul>
+        </div>
+        <figure class="media-frame">
+          <img src="assets/readme/provider-management.png" alt="CS Native 模型与凭证页面" />
+          <figcaption>Provider profile、凭证、模型映射集中管理。</figcaption>
+        </figure>
+      </section>
+
+      <section id="screens" class="section gallery-section">
+        <div class="section-heading">
+          <h2>桌面端控制面板</h2>
+          <p>启动、网络、公网入口、日志和诊断拆分清楚，适合反复启动和检查本地运行状态。</p>
+        </div>
+        <div class="screen-grid">
+          <figure class="screen wide">
+            <img src="assets/readme/hero-start.png" alt="CS Native 启动页" />
+            <figcaption>启动页选择已配置 provider，并显示当前代理、沙箱、上游和公网入口状态。</figcaption>
+          </figure>
+          <figure class="screen">
+            <img src="assets/readme/network-public-entry.png" alt="CS Native 网络页" />
+            <figcaption>网络页只负责端口、公网域名和 fresh nonce 入口。</figcaption>
+          </figure>
+          <figure class="screen">
+            <img src="assets/readme/runtime-logs.png" alt="CS Native 日志页" />
+            <figcaption>日志页读取本地真实日志，便于排查代理、沙箱和 provider 问题。</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section security-section">
+        <div class="section-heading">
+          <h2>本地优先，边界明确</h2>
+          <p>CS Native 的目标不是复制真实 Claude Science 凭证，而是在隔离目录中完成第三方模型模式需要的运行环境。</p>
+        </div>
+        <div class="security-grid">
+          <div>
+            <strong>配置目录</strong>
+            <code>~/.csnative</code>
+          </div>
+          <div>
+            <strong>沙箱 HOME</strong>
+            <code>~/.csnative/sandbox/home</code>
+          </div>
+          <div>
+            <strong>本地日志</strong>
+            <code>~/.csnative/logs/csnative.log</code>
+          </div>
+          <div>
+            <strong>默认代理</strong>
+            <code>127.0.0.1:18991</code>
+          </div>
+        </div>
+      </section>
+
+      <section id="download" class="download-section" aria-labelledby="download-title">
+        <div>
+          <h2 id="download-title">现在可以直接下载使用</h2>
+          <p>Release 会自动生成 macOS Apple Silicon、macOS Intel、Windows x64、Linux x64 四类资产，并附带 SHA-256 校验文件。</p>
+        </div>
+        <div class="download-actions">
+          <a class="button primary" href="https://github.com/eust-w/CSNative/releases/latest">打开 Releases</a>
+          <a class="button secondary" href="https://github.com/eust-w/CSNative/pkgs/container/csnative-app">查看 GHCR Package</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>CS Native</span>
+      <span>eust-w</span>
+      <a href="https://github.com/eust-w/CSNative">GitHub</a>
+      <a href="brand.md">品牌说明</a>
+    </footer>
+  </body>
+</html>
