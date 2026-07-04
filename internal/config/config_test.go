@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 )
 
@@ -27,11 +28,13 @@ func TestConfigRoundTripSetsPrivatePermissionsAndMasksKeys(t *testing.T) {
 	if got.Providers["qwen"].BaseURL == "" || got.Providers["qwen"].Adapter != "openai_chat_completions" {
 		t.Fatalf("builtin profile was not normalized: %#v", got.Providers["qwen"])
 	}
-	if mode := fileMode(t, dir); mode != 0o700 {
-		t.Fatalf("config dir mode = %o, want 700", mode)
-	}
-	if mode := fileMode(t, filepath.Join(dir, "config.json")); mode != 0o600 {
-		t.Fatalf("config file mode = %o, want 600", mode)
+	if runtime.GOOS != "windows" {
+		if mode := fileMode(t, dir); mode != 0o700 {
+			t.Fatalf("config dir mode = %o, want 700", mode)
+		}
+		if mode := fileMode(t, filepath.Join(dir, "config.json")); mode != 0o600 {
+			t.Fatalf("config file mode = %o, want 600", mode)
+		}
 	}
 	if masked := Mask("sk-test-abcdef"); masked == "sk-test-abcdef" || masked[len(masked)-4:] != "cdef" {
 		t.Fatalf("bad mask: %q", masked)
