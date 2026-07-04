@@ -23,10 +23,10 @@ func Run(appIcon ...[]byte) error {
 	}
 	return wails.Run(&options.App{
 		Title:     "CS Native",
-		Width:     360,
-		Height:    600,
-		MinWidth:  320,
-		MinHeight: 520,
+		Width:     960,
+		Height:    832,
+		MinWidth:  760,
+		MinHeight: 620,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

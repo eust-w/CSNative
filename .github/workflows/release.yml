@@ -1,0 +1,139 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, for example v0.1.0"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  macos:
+    name: Build macOS app
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Resolve release metadata
+        id: release
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            tag="${GITHUB_REF_NAME}"
+          else
+            tag="${{ inputs.tag }}"
+          fi
+
+          if [[ ! "${tag}" =~ ^v[0-9]+[.][0-9]+[.][0-9]+([-.][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Invalid release tag: ${tag}" >&2
+            exit 1
+          fi
+
+          version="${tag#v}"
+          arch="$(go env GOARCH)"
+          asset="CSNative-${tag}-darwin-${arch}.zip"
+          owner="$(printf '%s' "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
+
+          {
+            echo "tag=${tag}"
+            echo "version=${version}"
+            echo "arch=${arch}"
+            echo "asset=${asset}"
+            echo "image=ghcr.io/${owner}/csnative-app"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Test
+        run: go test ./...
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.12.0
+
+      - name: Build app
+        run: wails build -clean
+
+      - name: Package app
+        shell: bash
+        run: |
+          mkdir -p dist
+          ditto -c -k --sequesterRsrc --keepParent \
+            "build/bin/CSNative.app" \
+            "dist/${{ steps.release.outputs.asset }}"
+
+          (
+            cd dist
+            shasum -a 256 "${{ steps.release.outputs.asset }}" > checksums.txt
+          )
+
+          cat > dist/release-notes.md <<'NOTES'
+          ## CS Native
+
+          - Local provider/runtime control plane for Claude Science.
+          - Builds a macOS Wails app bundle with the CSN branding.
+          - Includes a zipped `.app` artifact and SHA-256 checksums.
+
+          > This build is self-signed by Wails. macOS may require explicit approval on first launch.
+          NOTES
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          tag="${{ steps.release.outputs.tag }}"
+          if gh release view "${tag}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            gh release upload "${tag}" dist/${{ steps.release.outputs.asset }} dist/checksums.txt \
+              --repo "${GITHUB_REPOSITORY}" \
+              --clobber
+          else
+            gh release create "${tag}" dist/${{ steps.release.outputs.asset }} dist/checksums.txt \
+              --repo "${GITHUB_REPOSITORY}" \
+              --target "${GITHUB_SHA}" \
+              --title "CS Native ${tag}" \
+              --notes-file dist/release-notes.md
+          fi
+
+      - name: Set up ORAS
+        uses: oras-project/setup-oras@v1
+
+      - name: Publish GitHub Package
+        env:
+          GHCR_IMAGE: ${{ steps.release.outputs.image }}
+          GHCR_TAG: ${{ steps.release.outputs.version }}
+          GHCR_ASSET: ${{ steps.release.outputs.asset }}
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          echo "${GITHUB_TOKEN}" | oras login ghcr.io \
+            --username "${GITHUB_ACTOR}" \
+            --password-stdin
+
+          oras push "${GHCR_IMAGE}:${GHCR_TAG}" \
+            --artifact-type "application/vnd.eust-w.csnative.release.v1" \
+            "dist/${GHCR_ASSET}:application/zip" \
+            "dist/checksums.txt:text/plain"
+
+          oras push "${GHCR_IMAGE}:latest" \
+            --artifact-type "application/vnd.eust-w.csnative.release.v1" \
+            "dist/${GHCR_ASSET}:application/zip" \
+            "dist/checksums.txt:text/plain"

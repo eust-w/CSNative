@@ -126,6 +126,24 @@ func TestPanelElementHasExpectedID(t *testing.T) {
 	}
 }
 
+func TestDesktopWindowStartsInControlPanelLayout(t *testing.T) {
+	goSrc, err := os.ReadFile("run.go")
+	if err != nil {
+		t.Fatal(err)
+	}
+	src := string(goSrc)
+	for _, want := range []string{
+		`Width:     960,`,
+		`Height:    832,`,
+		`MinWidth:  760,`,
+		`MinHeight: 620,`,
+	} {
+		if !strings.Contains(src, want) {
+			t.Fatalf("desktop launch window should match adapted control panel layout, missing %q", want)
+		}
+	}
+}
+
 func TestNativeSettingsLayoutIncludesSidebarAndPublicStatus(t *testing.T) {
 	html, err := os.ReadFile("frontend/dist/index.html")
 	if err != nil {
