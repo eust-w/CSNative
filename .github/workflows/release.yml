@@ -16,22 +16,14 @@ permissions:
   packages: write
 
 jobs:
-  macos:
-    name: Build macOS app
-    runs-on: macos-latest
-
+  prepare:
+    name: Prepare release metadata
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+      version: ${{ steps.release.outputs.version }}
+      image: ${{ steps.release.outputs.image }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
-          cache: true
-
       - name: Resolve release metadata
         id: release
         shell: bash
@@ -48,17 +40,66 @@ jobs:
           fi
 
           version="${tag#v}"
-          arch="$(go env GOARCH)"
-          asset="CSNative-${tag}-darwin-${arch}.zip"
           owner="$(printf '%s' "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
 
           {
             echo "tag=${tag}"
             echo "version=${version}"
-            echo "arch=${arch}"
-            echo "asset=${asset}"
             echo "image=ghcr.io/${owner}/csnative-app"
           } >> "${GITHUB_OUTPUT}"
+
+  build:
+    name: Build ${{ matrix.label }}
+    needs: prepare
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: macos-arm64
+            label: macOS arm64
+            os: macos-latest
+            asset_suffix: darwin-arm64
+            archive: zip
+          - id: macos-amd64
+            label: macOS Intel
+            os: macos-13
+            asset_suffix: darwin-amd64
+            archive: zip
+          - id: windows-amd64
+            label: Windows x64
+            os: windows-latest
+            asset_suffix: windows-amd64
+            archive: zip
+          - id: linux-amd64
+            label: Linux x64
+            os: ubuntu-22.04
+            asset_suffix: linux-amd64
+            archive: tar.gz
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Install Linux Wails dependencies
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            pkg-config \
+            libgtk-3-dev \
+            libwebkit2gtk-4.0-dev \
+            libglib2.0-dev
 
       - name: Test
         run: go test ./...
@@ -72,27 +113,79 @@ jobs:
       - name: Build app
         run: wails build -clean
 
-      - name: Package app
+      - name: Package Unix app
+        if: runner.os != 'Windows'
         shell: bash
         run: |
-          mkdir -p dist
-          ditto -c -k --sequesterRsrc --keepParent \
-            "build/bin/CSNative.app" \
-            "dist/${{ steps.release.outputs.asset }}"
+          set -euo pipefail
+          mkdir -p dist package
+          base="CSNative-${{ needs.prepare.outputs.tag }}-${{ matrix.asset_suffix }}"
 
+          if [[ "${{ runner.os }}" == "macOS" ]]; then
+            ditto -c -k --sequesterRsrc --keepParent \
+              "build/bin/CSNative.app" \
+              "dist/${base}.zip"
+          else
+            mkdir -p "package/${base}"
+            cp -R build/bin/. "package/${base}/"
+            tar -czf "dist/${base}.tar.gz" -C package "${base}"
+          fi
+
+      - name: Package Windows app
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $base = "CSNative-${{ needs.prepare.outputs.tag }}-${{ matrix.asset_suffix }}"
+          New-Item -ItemType Directory -Force -Path "dist" | Out-Null
+          New-Item -ItemType Directory -Force -Path "package/$base" | Out-Null
+          Copy-Item -Recurse -Force "build/bin/*" "package/$base/"
+          Compress-Archive -Path "package/$base" -DestinationPath "dist/$base.zip" -Force
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.id }}
+          path: dist/*
+          if-no-files-found: error
+
+  publish:
+    name: Publish release
+    needs:
+      - prepare
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: dist
+          merge-multiple: true
+
+      - name: Generate checksums and notes
+        shell: bash
+        run: |
+          set -euo pipefail
           (
             cd dist
-            shasum -a 256 "${{ steps.release.outputs.asset }}" > checksums.txt
+            sha256sum CSNative-* > checksums.txt
           )
 
-          cat > dist/release-notes.md <<'NOTES'
+          cat > release-notes.md <<'NOTES'
           ## CS Native
 
-          - Local provider/runtime control plane for Claude Science.
-          - Builds a macOS Wails app bundle with the CSN branding.
-          - Includes a zipped `.app` artifact and SHA-256 checksums.
+          CS Native is a local provider/runtime control plane for Claude Science.
 
-          > This build is self-signed by Wails. macOS may require explicit approval on first launch.
+          ### Download
+
+          - `CSNative-*-darwin-arm64.zip`: macOS Apple Silicon app bundle.
+          - `CSNative-*-darwin-amd64.zip`: macOS Intel app bundle.
+          - `CSNative-*-windows-amd64.zip`: Windows x64 executable bundle.
+          - `CSNative-*-linux-amd64.tar.gz`: Linux x64 executable bundle.
+          - `checksums.txt`: SHA-256 checksums for every release asset.
+
+          > macOS builds are self-signed by Wails. macOS may require explicit approval on first launch.
           NOTES
 
       - name: Publish GitHub Release
@@ -100,17 +193,23 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          tag="${{ steps.release.outputs.tag }}"
+          set -euo pipefail
+          tag="${{ needs.prepare.outputs.tag }}"
           if gh release view "${tag}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
-            gh release upload "${tag}" dist/${{ steps.release.outputs.asset }} dist/checksums.txt \
-              --repo "${GITHUB_REPOSITORY}" \
-              --clobber
-          else
-            gh release create "${tag}" dist/${{ steps.release.outputs.asset }} dist/checksums.txt \
+            gh release edit "${tag}" \
               --repo "${GITHUB_REPOSITORY}" \
               --target "${GITHUB_SHA}" \
               --title "CS Native ${tag}" \
-              --notes-file dist/release-notes.md
+              --notes-file release-notes.md
+            gh release upload "${tag}" dist/* \
+              --repo "${GITHUB_REPOSITORY}" \
+              --clobber
+          else
+            gh release create "${tag}" dist/* \
+              --repo "${GITHUB_REPOSITORY}" \
+              --target "${GITHUB_SHA}" \
+              --title "CS Native ${tag}" \
+              --notes-file release-notes.md
           fi
 
       - name: Set up ORAS
@@ -118,22 +217,25 @@ jobs:
 
       - name: Publish GitHub Package
         env:
-          GHCR_IMAGE: ${{ steps.release.outputs.image }}
-          GHCR_TAG: ${{ steps.release.outputs.version }}
-          GHCR_ASSET: ${{ steps.release.outputs.asset }}
+          GHCR_IMAGE: ${{ needs.prepare.outputs.image }}
+          GHCR_TAG: ${{ needs.prepare.outputs.version }}
           GITHUB_TOKEN: ${{ github.token }}
         shell: bash
         run: |
+          set -euo pipefail
           echo "${GITHUB_TOKEN}" | oras login ghcr.io \
             --username "${GITHUB_ACTOR}" \
             --password-stdin
 
+          files=()
+          for file in dist/*; do
+            files+=("${file}:application/octet-stream")
+          done
+
           oras push "${GHCR_IMAGE}:${GHCR_TAG}" \
             --artifact-type "application/vnd.eust-w.csnative.release.v1" \
-            "dist/${GHCR_ASSET}:application/zip" \
-            "dist/checksums.txt:text/plain"
+            "${files[@]}"
 
           oras push "${GHCR_IMAGE}:latest" \
             --artifact-type "application/vnd.eust-w.csnative.release.v1" \
-            "dist/${GHCR_ASSET}:application/zip" \
-            "dist/checksums.txt:text/plain"
+            "${files[@]}"
