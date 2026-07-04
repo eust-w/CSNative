@@ -35,10 +35,10 @@ func TestStartProviderSelectionIsSeparateFromProviderEditor(t *testing.T) {
 	src := string(js)
 	for _, want := range []string{
 		`function startProvider()`,
-		`const launchNote = p.id === startProviderId ? " · 启动" : (p.enabled && !p.has_key ? " · 不可启动" : "");`,
+		`const launchNote = p.id === startProviderId ? ` + "` · ${t(\"provider.launch\")}`" + ` : (p.enabled && !p.has_key ? ` + "` · ${t(\"provider.notLaunchable\")}`" + ` : "");`,
 		`renderProviderEditor(p);`,
 		`const providerID = els.startProvider.value || startProviderId;`,
-		`throw new Error("需先启用并保存 API key，才能设为启动默认。");`,
+		`throw new Error(t("msg.defaultNeedsKey"));`,
 	} {
 		if !strings.Contains(src, want) {
 			t.Fatalf("startup/editor provider separation missing %q", want)
@@ -59,12 +59,12 @@ func TestToolbarButtonsHaveVisibleFeedbackAndErrorHandling(t *testing.T) {
 		t.Fatal("frontend should route button actions through runAction for visible status and errors")
 	}
 	for _, want := range []string{
-		`openBrowserBtn.addEventListener("click", () => runAction("打开浏览器面板"`,
-		`doctorBtn.addEventListener("click", () => runAction("自检"`,
-		`openLogDirBtn.addEventListener("click", () => runAction("打开日志目录"`,
-		`reportBtn.addEventListener("click", () => runAction("打开反馈页面"`,
-		`updateBtn.addEventListener("click", () => runAction("检查更新"`,
-		`quitBtn.addEventListener("click", () => runAction("退出"`,
+		`openBrowserBtn.addEventListener("click", () => runAction(t("action.openBrowser")`,
+		`doctorBtn.addEventListener("click", () => runAction(t("action.doctor")`,
+		`openLogDirBtn.addEventListener("click", () => runAction(t("action.openLogDir")`,
+		`reportBtn.addEventListener("click", () => runAction(t("action.report")`,
+		`updateBtn.addEventListener("click", () => runAction(t("action.update")`,
+		`quitBtn.addEventListener("click", () => runAction(t("action.quit")`,
 	} {
 		if !strings.Contains(src, want) {
 			t.Fatalf("missing wrapped handler containing %q", want)
@@ -79,8 +79,8 @@ func TestModeButtonsUseVisibleErrorHandling(t *testing.T) {
 	}
 	src := string(js)
 	for _, want := range []string{
-		`return runAction("打开官方 Claude Science"`,
-		`runAction("切换模式"`,
+		`return runAction(t("msg.openOfficial")`,
+		`runAction(t("action.switchMode")`,
 	} {
 		if !strings.Contains(src, want) {
 			t.Fatalf("mode flow should use visible error handling containing %q", want)
@@ -95,9 +95,9 @@ func TestPrimaryActionsFormatCaughtErrors(t *testing.T) {
 	}
 	src := string(js)
 	for _, want := range []string{
-		`"保存 Provider 失败：" + errorText(e)`,
-		`"启动失败：" + errorText(e)`,
-		`"停止失败：" + errorText(e)`,
+		`t("msg.providerSaveFailed", { error: errorText(e) })`,
+		`t("msg.startFailed", { error: errorText(e) })`,
+		`t("msg.stopFailed", { error: errorText(e) })`,
 	} {
 		if !strings.Contains(src, want) {
 			t.Fatalf("primary action catch should format errors with %q", want)

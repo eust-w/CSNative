@@ -1,3 +1,5 @@
+import { applyI18n, fillLocaleSelect, getLocale, setLocale, t } from "./i18n.js";
+
 let api = null;
 let runtimeAPI = null;
 let busy = false;
@@ -32,16 +34,16 @@ const mockAPI = {
   SaveProvider: async (p) => ({ ...p, api_key: "", has_key: !!p.api_key, key_masked: p.api_key ? "••••" + p.api_key.slice(-4) : "", active: false }),
   DeleteProvider: async () => true,
   SetActiveProvider: async () => true,
-  VerifyProvider: async () => ({ ok: true, hint: "预览模式" }),
-  StartWithProvider: async () => ({ url: "http://127.0.0.1:8990", msg: "预览模式" }),
+  VerifyProvider: async () => ({ ok: true, hint: t("msg.previewMode") }),
+  StartWithProvider: async () => ({ url: "http://127.0.0.1:8990", msg: t("msg.previewMode") }),
   SetConfig: async () => true,
   SetMode: async () => true,
-  OneClickLogin: async () => ({ url: "http://127.0.0.1:8990", msg: "预览模式" }),
+  OneClickLogin: async () => ({ url: "http://127.0.0.1:8990", msg: t("msg.previewMode") }),
   StopAll: async () => null,
   Status: async () => ({ proxy: "amber", sandbox: "amber", upstream: "amber", public: "amber" }),
   OpenURL: async () => null,
   OpenPublicURL: async () => null,
-  RunDoctor: async () => "预览模式",
+  RunDoctor: async () => t("msg.previewMode"),
   OpenOfficial: async () => null,
   OpenLogs: async () => null,
   ReadLogs: async () => `${new Date().toISOString()} [INFO] preview log initialized\n${new Date().toISOString()} [INFO] provider saved id=qwen adapter=openai_chat_completions enabled=true`,
@@ -73,13 +75,13 @@ function setMsg(text, kind = "") {
   els.msg.className = "msg" + (kind ? " " + kind : "");
 }
 function setDiagnostic(text) {
-  if (els.diagnosticOutput) els.diagnosticOutput.textContent = text || "诊断输出为空。";
+  if (els.diagnosticOutput) els.diagnosticOutput.textContent = text || t("log.diagnosticEmpty");
 }
 function setLogOutput(text) {
-  if (els.logOutput) els.logOutput.textContent = text || "暂无日志。";
+  if (els.logOutput) els.logOutput.textContent = text || t("log.empty");
 }
 function errorText(err) {
-  if (!err) return "未知错误";
+  if (!err) return t("msg.unknownError");
   if (typeof err === "string") return err;
   return err.message || String(err);
 }
@@ -108,9 +110,9 @@ function launchProviders() {
 }
 function providerStatus(provider) {
   if (!provider) return "missing";
-  if (!provider.has_key) return "缺 key";
-  if (provider.verified) return "已验证";
-  return "未验证";
+  if (!provider.has_key) return t("provider.missingKey");
+  if (provider.verified) return t("provider.verified");
+  return t("provider.unverified");
 }
 function statusClass(provider) {
   if (!provider || !provider.has_key) return "err";
@@ -124,7 +126,7 @@ function applyMode(next) {
   mode = next === "official" ? "official" : "proxy";
   els.panel.classList.toggle("mode-official", mode === "official");
   els.modeSeg.querySelectorAll(".seg-btn").forEach((b) => b.classList.toggle("active", b.dataset.mode === mode));
-  els.oneClickBtn.textContent = mode === "official" ? "打开官方 Claude Science" : "一键开始";
+  els.oneClickBtn.textContent = mode === "official" ? t("start.openOfficial") : t("start.oneClick");
   if (mode === "official" && $(activePane)?.classList.contains("tp-only")) showTab("startPane");
 }
 
@@ -132,7 +134,7 @@ function showTab(paneId) {
   const pane = $(paneId);
   if (!pane) return;
   if (mode === "official" && pane.classList.contains("tp-only")) {
-    setMsg("官方模式下仅保留启动页。请切回第三方模型后再配置模型、凭证或网络。", "err");
+    setMsg(t("msg.officialOnly"), "err");
     paneId = "startPane";
   }
   activePane = paneId;
@@ -169,7 +171,7 @@ function reflectSummary() {
   if (els.publicStatusValue) els.publicStatusValue.textContent = String(parseInt(els.publicPort.value, 10) || 8992);
   if (els.upstreamStatusValue) {
     const p = startProvider() || currentProvider();
-    els.upstreamStatusValue.textContent = p ? p.display_name : "未配置";
+    els.upstreamStatusValue.textContent = p ? p.display_name : t("provider.noLaunchable");
   }
   const publicPort = parseInt(els.publicPort.value, 10) || 8992;
   const sandboxPort = parseInt(els.sandboxPort.value, 10) || 8990;
@@ -177,21 +179,21 @@ function reflectSummary() {
   if (els.publicURLPreview) els.publicURLPreview.textContent = publicURL;
   if (els.publicRootTarget) els.publicRootTarget.textContent = `127.0.0.1:${publicPort}`;
   if (els.publicSandboxTarget) els.publicSandboxTarget.textContent = `127.0.0.1:${sandboxPort}`;
-  if (els.publicRouteSummary) els.publicRouteSummary.textContent = `${publicURL}/ 生成 fresh nonce；其它路径转发到沙箱`;
+  if (els.publicRouteSummary) els.publicRouteSummary.textContent = t("network.routeSummary", { url: publicURL });
 }
 async function persistSettings() {
   await api.SetConfig(settings());
   reflectSummary();
 }
 async function runAction(label, fn, successText) {
-  setMsg(label + "…");
+  setMsg(t("msg.running", { label }));
   try {
     const result = await fn();
     const text = typeof successText === "function" ? successText(result) : successText;
     if (text) setMsg(text, "ok");
     return result;
   } catch (err) {
-    setMsg(label + "失败：" + errorText(err), "err");
+    setMsg(t("msg.failed", { label, error: errorText(err) }), "err");
     return null;
   }
 }
@@ -237,11 +239,11 @@ function renderStartProviderSelect() {
   if (list.length === 0) {
     const opt = document.createElement("option");
     opt.value = "";
-    opt.textContent = "没有可启动 provider";
+    opt.textContent = t("provider.noLaunchable");
     els.startProvider.appendChild(opt);
     els.startProvider.disabled = true;
     startProviderId = "";
-    els.startProviderSummary.textContent = "请先到“模型与凭证”启用 provider，并保存 API key。";
+    els.startProviderSummary.textContent = t("provider.noLaunchableHint");
     els.oneClickBtn.disabled = true;
     return;
   }
@@ -250,7 +252,7 @@ function renderStartProviderSelect() {
   for (const p of list) {
     const opt = document.createElement("option");
     opt.value = p.id;
-    opt.textContent = `${p.display_name} · ${providerStatus(p)} · ${p.default_model || "未设模型"}`;
+    opt.textContent = `${p.display_name} · ${providerStatus(p)} · ${p.default_model || t("provider.unsetModel")}`;
     els.startProvider.appendChild(opt);
   }
   if (!list.find((p) => p.id === startProviderId)) startProviderId = list[0].id;
@@ -261,7 +263,7 @@ function renderStartProviderSelect() {
 function updateStartProviderSummary() {
   const p = startProvider();
   if (!p) {
-    els.startProviderSummary.textContent = "请先配置一个可启动 provider。";
+    els.startProviderSummary.textContent = t("provider.configureFirst");
     return;
   }
   els.startProviderSummary.innerHTML = `
@@ -279,7 +281,7 @@ function renderProviderList() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "provider-list-item" + (p.id === selectedProviderId ? " active" : "");
-    const launchNote = p.id === startProviderId ? " · 启动" : (p.enabled && !p.has_key ? " · 不可启动" : "");
+    const launchNote = p.id === startProviderId ? ` · ${t("provider.launch")}` : (p.enabled && !p.has_key ? ` · ${t("provider.notLaunchable")}` : "");
     button.innerHTML = `<span class="mini-dot ${p.has_key ? (p.verified ? "g" : "a") : "r"}"></span><strong>${escapeHTML(p.display_name)}</strong><em>${escapeHTML(providerStatus(p) + launchNote)}</em>`;
     button.addEventListener("click", () => {
       selectedProviderId = p.id;
@@ -292,7 +294,7 @@ function renderProviderList() {
 
 function renderProviderEditor(provider) {
   if (!provider) {
-    els.providerEditorTitle.textContent = "Provider";
+    els.providerEditorTitle.textContent = t("provider.titleFallback");
     return;
   }
   els.providerEditorTitle.textContent = provider.display_name || provider.id;
@@ -305,7 +307,7 @@ function renderProviderEditor(provider) {
   els.providerBaseURLInput.value = provider.base_url || "";
   els.providerDefaultModelInput.value = provider.default_model || "";
   els.providerKeyInput.value = "";
-  els.providerKeyInput.placeholder = provider.has_key ? "已保存：" + provider.key_masked + "；留空保留" : "粘贴 API key";
+  els.providerKeyInput.placeholder = provider.has_key ? t("provider.savedKey", { key: provider.key_masked }) : t("provider.pasteKey");
   els.mapOpusInput.value = provider.model_map?.[scienceModels.opus] || provider.default_model || "";
   els.mapSonnetInput.value = provider.model_map?.[scienceModels.sonnet] || provider.model_map?.["claude-sonnet-5"] || provider.default_model || "";
   els.mapHaikuInput.value = provider.model_map?.[scienceModels.haiku] || provider.default_model || "";
@@ -345,9 +347,9 @@ async function saveProvider() {
     const saved = await api.SaveProvider(collectProvider());
     selectedProviderId = saved.id;
     await loadProviders(saved.id);
-    setMsg("Provider 已保存。", "ok");
+    setMsg(t("msg.providerSaved"), "ok");
   } catch (e) {
-    setMsg("保存 Provider 失败：" + errorText(e), "err");
+    setMsg(t("msg.providerSaveFailed", { error: errorText(e) }), "err");
   } finally {
     setBusy(false);
   }
@@ -360,9 +362,9 @@ async function verifyProvider() {
     selectedProviderId = saved.id;
     const res = await api.VerifyProvider(saved.id);
     await loadProviders(saved.id);
-    setMsg(res.ok ? "Provider 验证通过。" : "Provider 验证未通过：" + res.hint, res.ok ? "ok" : "err");
+    setMsg(res.ok ? t("msg.providerVerifyPassed") : t("msg.providerVerifyFailedResult", { hint: res.hint || "" }), res.ok ? "ok" : "err");
 	  } catch (e) {
-	    setMsg("验证 Provider 失败：" + errorText(e), "err");
+	    setMsg(t("msg.providerVerifyFailed", { error: errorText(e) }), "err");
 	    await loadProviders(selectedProviderId);
 	  } finally {
     setBusy(false);
@@ -373,14 +375,14 @@ async function verifyProvider() {
 async function setDefaultProvider() {
   const saved = await api.SaveProvider(collectProvider());
   if (!saved.enabled || !saved.has_key) {
-    throw new Error("需先启用并保存 API key，才能设为启动默认。");
+    throw new Error(t("msg.defaultNeedsKey"));
   }
   selectedProviderId = saved.id;
   startProviderId = saved.id;
   await api.SetActiveProvider(saved.id);
   await persistSettings();
   await loadProviders(saved.id);
-  setMsg("已设为启动默认 provider。", "ok");
+  setMsg(t("msg.defaultProviderSet"), "ok");
 }
 
 async function deleteProvider() {
@@ -390,9 +392,9 @@ async function deleteProvider() {
   try {
     await api.DeleteProvider(p.id);
     await loadProviders();
-    setMsg(p.builtin ? "内置 provider 已停用。" : "Provider 已删除。", "ok");
+    setMsg(p.builtin ? t("msg.providerDisabled") : t("msg.providerDeleted"), "ok");
   } catch (e) {
-    setMsg("删除 Provider 失败：" + errorText(e), "err");
+    setMsg(t("msg.providerDeleteFailed", { error: errorText(e) }), "err");
   } finally {
     setBusy(false);
   }
@@ -400,7 +402,7 @@ async function deleteProvider() {
 
 function addProvider() {
   const id = "custom-" + Date.now().toString().slice(-6);
-  const p = providerTemplate(id, "自定义 Provider", "openai_chat_completions", "https://example.com/v1/chat/completions", "model-name", false, false);
+  const p = providerTemplate(id, t("provider.customName"), "openai_chat_completions", "https://example.com/v1/chat/completions", t("provider.defaultModelName"), false, false);
   providers.push(p);
   selectedProviderId = id;
   renderProviderList();
@@ -438,18 +440,18 @@ async function refreshStatus() {
 }
 
 async function oneClick() {
-  if (mode === "official") return runAction("打开官方 Claude Science", () => api.OpenOfficial(), "已打开官方 Claude Science。");
+  if (mode === "official") return runAction(t("msg.openOfficial"), () => api.OpenOfficial(), t("msg.openedOfficial"));
   setBusy(true);
-  setMsg("一键开始：选择 provider → 起代理 → 起沙箱 → 探活…");
+  setMsg(t("msg.starting"));
   try {
     const providerID = els.startProvider.value || startProviderId;
     await api.SetActiveProvider(providerID);
     await persistSettings();
     const r = await api.StartWithProvider(providerID);
-    setMsg((r.msg || "已就绪。") + "\n" + (r.url || ""), "ok");
+    setMsg((r.msg || t("msg.startedFallback")) + "\n" + (r.url || ""), "ok");
     await loadProviders(providerID);
   } catch (e) {
-    setMsg("启动失败：" + errorText(e), "err");
+    setMsg(t("msg.startFailed", { error: errorText(e) }), "err");
   } finally {
     setBusy(false);
     await refreshStatus();
@@ -460,9 +462,9 @@ async function stopAll() {
   setBusy(true);
   try {
     await api.StopAll();
-    setMsg("已停止代理与沙箱。", "ok");
+    setMsg(t("msg.stopped"), "ok");
   } catch (e) {
-    setMsg("停止失败：" + errorText(e), "err");
+    setMsg(t("msg.stopFailed", { error: errorText(e) }), "err");
   } finally {
     setBusy(false);
     await refreshStatus();
@@ -474,7 +476,7 @@ async function refreshLogs() {
     const logs = await api.ReadLogs();
     setLogOutput(logs);
   } catch (e) {
-    setLogOutput("读取日志失败：" + errorText(e));
+    setLogOutput(t("msg.readLogFailed", { error: errorText(e) }));
   }
 }
 
@@ -485,7 +487,7 @@ async function clearLogs() {
 
 async function copyPublicURL() {
   const text = els.publicURLPreview.textContent.trim();
-  if (!text) throw new Error("公网入口为空");
+  if (!text) throw new Error(t("msg.publicEmpty"));
   if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(text);
     return;
@@ -499,7 +501,7 @@ async function copyPublicURL() {
   input.select();
   const ok = document.execCommand("copy");
   input.remove();
-  if (!ok) throw new Error("剪贴板不可用");
+  if (!ok) throw new Error(t("msg.clipboardUnavailable"));
 }
 
 function escapeHTML(s) {
@@ -507,6 +509,17 @@ function escapeHTML(s) {
 }
 function normalizeId(s) {
   return String(s || "").trim().toLowerCase().replace(/[\s_]+/g, "-");
+}
+
+function renderLocalizedUI() {
+  applyI18n(document);
+  applyMode(mode);
+  showTab(activePane);
+  renderStartProviderSelect();
+  renderProviderList();
+  renderProviderEditor(currentProvider());
+  reflectSummary();
+  if (els.localeSelect) els.localeSelect.value = getLocale();
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
@@ -520,16 +533,25 @@ window.addEventListener("DOMContentLoaded", async () => {
     "saveNetworkBtn","openPublicBtn","copyPublicURLBtn","proxyPort","sandboxPort","publicPort","publicBaseURL",
     "publicURLPreview","publicRootTarget","publicSandboxTarget","publicRouteSummary","oneClickBtn","stopBtn","msg",
     "logOutput","refreshLogBtn","openLogDirBtn","clearLogBtn","diagnosticOutput","ltProxy","ltSandbox","ltUpstream",
-    "ltPublic","openBrowserBtn","doctorBtn","reportBtn","updateBtn","verLabel","aboutVersion","quitBtn",
+    "ltPublic","openBrowserBtn","doctorBtn","reportBtn","updateBtn","verLabel","aboutVersion","quitBtn","localeSelect",
   ].forEach((id) => (els[id] = $(id)));
   els.proxyStatusValue = els.ltProxy?.parentElement?.querySelector("strong");
   els.sandboxStatusValue = els.ltSandbox?.parentElement?.querySelector("strong");
   els.upstreamStatusValue = els.ltUpstream?.parentElement?.querySelector("strong");
   els.publicStatusValue = els.ltPublic?.parentElement?.querySelector("strong");
+  fillLocaleSelect(els.localeSelect);
+  applyI18n(document);
+  showTab(activePane);
   await loadConfig();
   const version = await api.AppVersion();
   els.verLabel.textContent = version;
   if (els.aboutVersion) els.aboutVersion.textContent = version;
+
+  els.localeSelect.addEventListener("change", () => {
+    setLocale(els.localeSelect.value);
+    renderLocalizedUI();
+    setMsg(t("msg.ready"));
+  });
 
   els.startProvider.addEventListener("change", async () => {
     startProviderId = els.startProvider.value;
@@ -556,29 +578,29 @@ window.addEventListener("DOMContentLoaded", async () => {
   els.copyProviderBtn.addEventListener("click", copyProvider);
   els.saveProviderBtn.addEventListener("click", saveProvider);
   els.verifyProviderBtn.addEventListener("click", verifyProvider);
-  els.setDefaultProviderBtn.addEventListener("click", () => runAction("设为启动默认", setDefaultProvider, ""));
+  els.setDefaultProviderBtn.addEventListener("click", () => runAction(t("provider.setDefault"), setDefaultProvider, ""));
   els.deleteProviderBtn.addEventListener("click", deleteProvider);
-  els.saveNetworkBtn.addEventListener("click", () => runAction("保存网络设置", persistSettings, "网络设置已保存。"));
-  els.openPublicBtn.addEventListener("click", () => runAction("打开公网入口", () => api.OpenPublicURL(), "已打开公网入口。"));
-  els.copyPublicURLBtn.addEventListener("click", () => runAction("复制公网入口", copyPublicURL, "公网入口已复制。"));
-  els.refreshLogBtn.addEventListener("click", () => runAction("刷新日志", refreshLogs, "日志已刷新。"));
-  els.openLogDirBtn.addEventListener("click", () => runAction("打开日志目录", () => api.OpenLogs(), "已打开日志目录。"));
-  els.clearLogBtn.addEventListener("click", () => runAction("清空日志", clearLogs, "日志已清空。"));
+  els.saveNetworkBtn.addEventListener("click", () => runAction(t("action.saveNetwork"), persistSettings, t("msg.networkSaved")));
+  els.openPublicBtn.addEventListener("click", () => runAction(t("action.openPublic"), () => api.OpenPublicURL(), t("msg.publicOpened")));
+  els.copyPublicURLBtn.addEventListener("click", () => runAction(t("action.copyPublic"), copyPublicURL, t("msg.publicCopied")));
+  els.refreshLogBtn.addEventListener("click", () => runAction(t("action.refreshLogs"), refreshLogs, t("msg.logRefreshed")));
+  els.openLogDirBtn.addEventListener("click", () => runAction(t("action.openLogDir"), () => api.OpenLogs(), t("msg.logDirOpened")));
+  els.clearLogBtn.addEventListener("click", () => runAction(t("action.clearLogs"), clearLogs, t("msg.logCleared")));
   els.oneClickBtn.addEventListener("click", oneClick);
   els.stopBtn.addEventListener("click", stopAll);
-  els.openBrowserBtn.addEventListener("click", () => runAction("打开浏览器面板", () => api.OpenURL(), "已打开浏览器面板。"));
-  els.doctorBtn.addEventListener("click", () => runAction("自检", () => api.RunDoctor(), (out) => {
-    setDiagnostic(out || "自检完成。");
-    return "自检完成。";
+  els.openBrowserBtn.addEventListener("click", () => runAction(t("action.openBrowser"), () => api.OpenURL(), t("msg.browserOpened")));
+  els.doctorBtn.addEventListener("click", () => runAction(t("action.doctor"), () => api.RunDoctor(), (out) => {
+    setDiagnostic(out || t("msg.doctorDone"));
+    return t("msg.doctorDone");
   }));
-  els.reportBtn.addEventListener("click", () => runAction("打开反馈页面", () => api.ReportBug(), "已打开反馈页面。"));
-  els.updateBtn.addEventListener("click", () => runAction("检查更新", () => api.OpenReleasePage(), "已打开最新版本页面。"));
-  els.quitBtn.addEventListener("click", () => runAction("退出", async () => (await loadRuntime()).Quit(), "正在退出。"));
+  els.reportBtn.addEventListener("click", () => runAction(t("action.report"), () => api.ReportBug(), t("msg.reportOpened")));
+  els.updateBtn.addEventListener("click", () => runAction(t("action.update"), () => api.OpenReleasePage(), t("msg.releaseOpened")));
+  els.quitBtn.addEventListener("click", () => runAction(t("action.quit"), async () => (await loadRuntime()).Quit(), t("msg.exiting")));
   document.querySelectorAll(".nav-item").forEach((button) => button.addEventListener("click", () => showTab(button.dataset.tab)));
-  els.modeSeg.querySelectorAll(".seg-btn").forEach((b) => b.addEventListener("click", () => runAction("切换模式", async () => {
+  els.modeSeg.querySelectorAll(".seg-btn").forEach((b) => b.addEventListener("click", () => runAction(t("action.switchMode"), async () => {
     await api.SetMode(b.dataset.mode);
     applyMode(b.dataset.mode);
     await refreshStatus();
-  }, b.dataset.mode === "official" ? "已切到官方 Claude 模式。" : "已切到第三方模型模式。")));
+  }, b.dataset.mode === "official" ? t("mode.switchedOfficial") : t("mode.switchedProxy"))));
   await refreshStatus();
 });

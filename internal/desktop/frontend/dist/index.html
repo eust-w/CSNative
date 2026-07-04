@@ -9,7 +9,7 @@
   </head>
   <body>
     <main id="panel" class="panel">
-      <aside class="sidebar" aria-label="设置导航">
+      <aside class="sidebar" aria-label="设置导航" data-i18n-aria-label="app.settingsNav">
         <div class="brand-block">
           <span id="brandDot" class="app-mark" aria-hidden="true">CSN</span>
           <div>
@@ -18,18 +18,19 @@
           </div>
         </div>
 
-        <nav class="nav-list" role="tablist" aria-label="CS Native 设置">
-          <button class="nav-item active" id="tabStart" type="button" role="tab" aria-selected="true" data-tab="startPane" data-title="启动" data-desc="选择已配置 provider，启动代理、沙箱 Science 和 fresh nonce 入口。"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 9v10h5v-6h4v6h5V9l-7-6Z"/></svg>启动</button>
-          <button class="nav-item" id="tabProvider" type="button" role="tab" aria-selected="false" data-tab="providerPane" data-title="模型与凭证" data-desc="配置 provider、base URL、API key、默认模型和 Science 模型映射。"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="M12 12 4.5 7.8M12 12l7.5-4.2M12 12v8.5"/></svg>模型与凭证</button>
-          <button class="nav-item" id="tabNetwork" type="button" role="tab" aria-selected="false" data-tab="networkPane" data-title="网络" data-desc="配置本机端口和公网 fresh nonce 入口。"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.2 2.5 3.3 5.5 3.3 9S14.2 18.5 12 21c-2.2-2.5-3.3-5.5-3.3-9S9.8 5.5 12 3Z"/></svg>网络</button>
-          <button class="nav-item" id="tabLog" type="button" role="tab" aria-selected="false" data-tab="logPane" data-title="日志" data-desc="查看 CSN 本地运行日志和最近动作。"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7V3Z"/><path d="M14 3v5h5M9.5 12h5M9.5 16h7"/></svg>日志</button>
-          <button class="nav-item" id="tabAbout" type="button" role="tab" aria-selected="false" data-tab="aboutPane" data-title="关于" data-desc="运行自检、打开面板、反馈问题和查看版本信息。"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/></svg>关于</button>
+        <nav class="nav-list" role="tablist" aria-label="CS Native 设置" data-i18n-aria-label="app.settingsNav">
+          <button class="nav-item active" id="tabStart" type="button" role="tab" aria-selected="true" data-tab="startPane" data-title="启动" data-desc="选择已配置 provider，启动代理、沙箱 Science 和 fresh nonce 入口。" data-i18n-data-title="tab.start.title" data-i18n-data-desc="tab.start.desc"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 9v10h5v-6h4v6h5V9l-7-6Z"/></svg><span data-i18n="nav.start">启动</span></button>
+          <button class="nav-item" id="tabProvider" type="button" role="tab" aria-selected="false" data-tab="providerPane" data-title="模型与凭证" data-desc="配置 provider、base URL、API key、默认模型和 Science 模型映射。" data-i18n-data-title="tab.provider.title" data-i18n-data-desc="tab.provider.desc"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="M12 12 4.5 7.8M12 12l7.5-4.2M12 12v8.5"/></svg><span data-i18n="nav.provider">模型与凭证</span></button>
+          <button class="nav-item" id="tabNetwork" type="button" role="tab" aria-selected="false" data-tab="networkPane" data-title="网络" data-desc="配置本机端口和公网 fresh nonce 入口。" data-i18n-data-title="tab.network.title" data-i18n-data-desc="tab.network.desc"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.2 2.5 3.3 5.5 3.3 9S14.2 18.5 12 21c-2.2-2.5-3.3-5.5-3.3-9S9.8 5.5 12 3Z"/></svg><span data-i18n="nav.network">网络</span></button>
+          <button class="nav-item" id="tabLog" type="button" role="tab" aria-selected="false" data-tab="logPane" data-title="日志" data-desc="查看 CSN 本地运行日志和最近动作。" data-i18n-data-title="tab.log.title" data-i18n-data-desc="tab.log.desc"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7V3Z"/><path d="M14 3v5h5M9.5 12h5M9.5 16h7"/></svg><span data-i18n="nav.log">日志</span></button>
+          <button class="nav-item" id="tabAbout" type="button" role="tab" aria-selected="false" data-tab="aboutPane" data-title="关于" data-desc="运行自检、打开面板、反馈问题和查看版本信息。" data-i18n-data-title="tab.about.title" data-i18n-data-desc="tab.about.desc"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/></svg><span data-i18n="nav.about">关于</span></button>
         </nav>
 
         <div class="sidebar-footer">
-          <div class="side-health"><span class="mini-dot g"></span><span>本地控制面板</span></div>
-          <div class="side-path">配置：~/.csnative/config.json</div>
-          <div class="side-version"><span>版本</span><span id="verLabel" class="version-pill"></span></div>
+          <label class="language-field"><span data-i18n="language.label">语言</span><select id="localeSelect"></select></label>
+          <div class="side-health"><span class="mini-dot g"></span><span data-i18n="sidebar.health">本地控制面板</span></div>
+          <div class="side-path" data-i18n="sidebar.path">配置：~/.csnative/config.json</div>
+          <div class="side-version"><span data-i18n="sidebar.version">版本</span><span id="verLabel" class="version-pill"></span></div>
         </div>
       </aside>
 
@@ -39,49 +40,49 @@
             <h1 id="pageTitle">启动</h1>
             <p id="pageDesc">选择已配置 provider，启动代理、沙箱 Science 和 fresh nonce 入口。</p>
           </div>
-          <button class="icon-btn" id="quitBtn" type="button" title="退出" aria-label="退出">⏻</button>
+          <button class="icon-btn" id="quitBtn" type="button" title="退出" aria-label="退出" data-i18n-title="top.quit" data-i18n-aria-label="top.quit">⏻</button>
         </header>
 
         <section id="startPane" class="tab-pane active" role="tabpanel" aria-labelledby="tabStart">
           <div class="pane-head">
             <div>
-              <h2>运行模式</h2>
-              <p>第三方模型会启动本地代理和独立沙箱；官方模式只打开真实 Claude Science。</p>
+              <h2 data-i18n="start.mode.title">运行模式</h2>
+              <p data-i18n="start.mode.desc">第三方模型会启动本地代理和独立沙箱；官方模式只打开真实 Claude Science。</p>
             </div>
             <div class="seg" id="modeSeg" role="tablist" aria-label="运行模式">
-              <button type="button" class="seg-btn active" data-mode="proxy">第三方模型</button>
-              <button type="button" class="seg-btn" data-mode="official">官方 Claude</button>
+              <button type="button" class="seg-btn active" data-mode="proxy" data-i18n="start.mode.proxy">第三方模型</button>
+              <button type="button" class="seg-btn" data-mode="official" data-i18n="start.mode.official">官方 Claude</button>
             </div>
           </div>
 
-          <div class="official-only notice">
+          <div class="official-only notice" data-i18n="start.officialNotice">
             官方模式不会注入环境变量，也不会托管官方登录。CS Native 只负责打开真实 Claude Science。
           </div>
 
           <div class="provider-start tp-only">
-            <label class="field-label" for="startProvider">启动 Provider（已启用且有 key）</label>
+            <label class="field-label" for="startProvider" data-i18n="start.provider.label">启动 Provider（已启用且有 key）</label>
             <div class="inline-field">
               <select id="startProvider"></select>
-              <button class="secondary-btn fixed" id="editProviderBtn" type="button">管理</button>
+              <button class="secondary-btn fixed" id="editProviderBtn" type="button" data-i18n="start.provider.manage">管理</button>
             </div>
             <div id="startProviderSummary" class="provider-summary"></div>
           </div>
 
           <div class="launch-panel">
-            <button class="primary-btn" id="oneClickBtn">一键开始</button>
-            <button class="secondary-btn" id="stopBtn">全部停止</button>
+            <button class="primary-btn" id="oneClickBtn" data-i18n="start.oneClick">一键开始</button>
+            <button class="secondary-btn" id="stopBtn" data-i18n="start.stop">全部停止</button>
           </div>
 
           <div class="status-strip tp-only" aria-label="服务状态">
-            <div class="status-item"><span id="ltProxy" class="lt a"></span><span>代理</span><strong>18991</strong></div>
-            <div class="status-item"><span id="ltSandbox" class="lt a"></span><span>沙箱</span><strong>8990</strong></div>
-            <div class="status-item"><span id="ltUpstream" class="lt a"></span><span>上游</span><strong>Provider</strong></div>
-            <div class="status-item"><span id="ltPublic" class="lt a"></span><span>公网入口</span><strong>8992</strong></div>
+            <div class="status-item"><span id="ltProxy" class="lt a"></span><span data-i18n="status.proxy">代理</span><strong>18991</strong></div>
+            <div class="status-item"><span id="ltSandbox" class="lt a"></span><span data-i18n="status.sandbox">沙箱</span><strong>8990</strong></div>
+            <div class="status-item"><span id="ltUpstream" class="lt a"></span><span data-i18n="status.upstream">上游</span><strong>Provider</strong></div>
+            <div class="status-item"><span id="ltPublic" class="lt a"></span><span data-i18n="status.public">公网入口</span><strong>8992</strong></div>
           </div>
 
           <div class="timeline">
-            <div><span class="mini-dot g"></span><strong>当前流程</strong><em>Provider → 本地代理 → 虚拟 OAuth → 沙箱 Science → fresh URL</em></div>
-            <div><span class="mini-dot a"></span><strong>安全边界</strong><em>只使用 <code>~/.csnative</code>，不写真实 Science 凭证目录</em></div>
+            <div><span class="mini-dot g"></span><strong data-i18n="timeline.flow">当前流程</strong><em data-i18n="timeline.flowText">Provider → 本地代理 → 虚拟 OAuth → 沙箱 Science → fresh URL</em></div>
+            <div><span class="mini-dot a"></span><strong data-i18n="timeline.boundary">安全边界</strong><em data-i18n-html="timeline.boundaryText">只使用 <code>~/.csnative</code>，不写真实 Science 凭证目录</em></div>
           </div>
         </section>
 
@@ -89,8 +90,8 @@
           <div class="provider-layout">
             <aside class="provider-list-panel">
               <div class="provider-list-actions">
-                <button class="secondary-btn fixed" id="addProviderBtn" type="button">新增</button>
-                <button class="secondary-btn fixed" id="copyProviderBtn" type="button">复制</button>
+                <button class="secondary-btn fixed" id="addProviderBtn" type="button" data-i18n="provider.add">新增</button>
+                <button class="secondary-btn fixed" id="copyProviderBtn" type="button" data-i18n="provider.copy">复制</button>
               </div>
               <div id="providerList" class="provider-list"></div>
             </aside>
@@ -99,37 +100,37 @@
               <div class="pane-head compact">
                 <div>
                   <h2 id="providerEditorTitle">Provider</h2>
-                  <p>同页管理 base URL、API key、适配器和 Science 模型映射。</p>
+                  <p data-i18n="provider.editor.desc">同页管理 base URL、API key、适配器和 Science 模型映射。</p>
                 </div>
-                <span id="providerStateBadge" class="state-badge">未检测</span>
+                <span id="providerStateBadge" class="state-badge" data-i18n="provider.state.unknown">未检测</span>
               </div>
 
               <div class="form-grid two">
-                <label><span>Provider ID</span><input id="providerIdInput" autocomplete="off" spellcheck="false" /></label>
-                <label><span>显示名称</span><input id="providerNameInput" autocomplete="off" /></label>
-                <label><span>Adapter</span><select id="providerAdapterInput"><option value="openai_chat_completions">OpenAI Chat Completions</option><option value="anthropic_messages">Anthropic Messages</option></select></label>
-                <label><span>默认模型</span><input id="providerDefaultModelInput" autocomplete="off" spellcheck="false" /></label>
+                <label><span data-i18n="provider.id">Provider ID</span><input id="providerIdInput" autocomplete="off" spellcheck="false" /></label>
+                <label><span data-i18n="provider.name">显示名称</span><input id="providerNameInput" autocomplete="off" /></label>
+                <label><span data-i18n="provider.adapter">Adapter</span><select id="providerAdapterInput"><option value="openai_chat_completions">OpenAI Chat Completions</option><option value="anthropic_messages">Anthropic Messages</option></select></label>
+                <label><span data-i18n="provider.defaultModel">默认模型</span><input id="providerDefaultModelInput" autocomplete="off" spellcheck="false" /></label>
               </div>
 
-              <label class="stack-field"><span>Base URL</span><input id="providerBaseURLInput" autocomplete="off" spellcheck="false" /></label>
-              <label class="stack-field"><span>API Key</span><input id="providerKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="留空则保留已保存 key" /></label>
+              <label class="stack-field"><span data-i18n="provider.baseURL">Base URL</span><input id="providerBaseURLInput" autocomplete="off" spellcheck="false" /></label>
+              <label class="stack-field"><span data-i18n="provider.apiKey">API Key</span><input id="providerKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="留空则保留已保存 key" data-i18n-placeholder="provider.keepKey" /></label>
 
               <div class="mapping-table">
-                <div class="mapping-row mapping-head"><span>Science 模型族</span><span>上游模型</span></div>
+                <div class="mapping-row mapping-head"><span data-i18n="provider.modelFamily">Science 模型族</span><span data-i18n="provider.upstreamModel">上游模型</span></div>
                 <label class="mapping-row"><span>Opus</span><input id="mapOpusInput" autocomplete="off" spellcheck="false" /></label>
                 <label class="mapping-row"><span>Sonnet</span><input id="mapSonnetInput" autocomplete="off" spellcheck="false" /></label>
                 <label class="mapping-row"><span>Haiku</span><input id="mapHaikuInput" autocomplete="off" spellcheck="false" /></label>
               </div>
 
               <div class="provider-flags">
-                <label><input id="providerEnabledInput" type="checkbox" /> 启用（保存 key 后可在启动页选择）</label>
+                <label><input id="providerEnabledInput" type="checkbox" /> <span data-i18n="provider.enabled">启用（保存 key 后可在启动页选择）</span></label>
               </div>
 
               <div class="editor-actions">
-                <button class="primary-btn" id="saveProviderBtn" type="button">保存</button>
-                <button class="secondary-btn" id="verifyProviderBtn" type="button">验证</button>
-                <button class="secondary-btn" id="setDefaultProviderBtn" type="button">设为启动默认</button>
-                <button class="secondary-btn danger" id="deleteProviderBtn" type="button">删除</button>
+                <button class="primary-btn" id="saveProviderBtn" type="button" data-i18n="provider.save">保存</button>
+                <button class="secondary-btn" id="verifyProviderBtn" type="button" data-i18n="provider.verify">验证</button>
+                <button class="secondary-btn" id="setDefaultProviderBtn" type="button" data-i18n="provider.setDefault">设为启动默认</button>
+                <button class="secondary-btn danger" id="deleteProviderBtn" type="button" data-i18n="provider.delete">删除</button>
               </div>
             </section>
           </div>
@@ -138,69 +139,69 @@
         <section id="networkPane" class="tab-pane tp-only" role="tabpanel" aria-labelledby="tabNetwork" hidden>
           <div class="pane-head compact">
             <div>
-              <h2>端口</h2>
-              <p>所有服务默认只绑定本机回环地址；公网入口由外层反代访问。</p>
+              <h2 data-i18n="network.ports.title">端口</h2>
+              <p data-i18n="network.ports.desc">所有服务默认只绑定本机回环地址；公网入口由外层反代访问。</p>
             </div>
-            <button class="secondary-btn fixed" id="saveNetworkBtn">保存</button>
+            <button class="secondary-btn fixed" id="saveNetworkBtn" data-i18n="network.save">保存</button>
           </div>
           <div class="port-grid">
-            <div class="port-field"><label for="proxyPort">代理端口</label><input id="proxyPort" inputmode="numeric" value="18991" /></div>
-            <div class="port-field"><label for="sandboxPort">沙箱端口</label><input id="sandboxPort" inputmode="numeric" value="8990" /></div>
-            <div class="port-field"><label for="publicPort">公网入口</label><input id="publicPort" inputmode="numeric" value="8992" /></div>
+            <div class="port-field"><label for="proxyPort" data-i18n="network.proxyPort">代理端口</label><input id="proxyPort" inputmode="numeric" value="18991" /></div>
+            <div class="port-field"><label for="sandboxPort" data-i18n="network.sandboxPort">沙箱端口</label><input id="sandboxPort" inputmode="numeric" value="8990" /></div>
+            <div class="port-field"><label for="publicPort" data-i18n="network.publicPort">公网入口</label><input id="publicPort" inputmode="numeric" value="8992" /></div>
           </div>
           <div class="domain-panel">
-            <label class="stack-field"><span>公网域名</span><input id="publicBaseURL" autocomplete="off" spellcheck="false" placeholder="https://csn.example.com" /></label>
+            <label class="stack-field"><span data-i18n="network.publicBaseURL">公网域名</span><input id="publicBaseURL" autocomplete="off" spellcheck="false" placeholder="https://csn.example.com" data-i18n-placeholder="network.publicPlaceholder" /></label>
             <div class="domain-state">
-              <span>入口预览</span>
+              <span data-i18n="network.preview">入口预览</span>
               <code id="publicURLPreview">http://127.0.0.1:8992</code>
-              <button class="secondary-btn fixed" id="copyPublicURLBtn" type="button">复制</button>
+              <button class="secondary-btn fixed" id="copyPublicURLBtn" type="button" data-i18n="network.copy">复制</button>
             </div>
           </div>
           <div class="url-preview">
-            <span>公网入口</span>
-            <code id="publicRouteSummary">根路径生成 fresh nonce；其他路径转发沙箱 Science</code>
-            <button class="secondary-btn fixed" id="openPublicBtn" type="button">打开</button>
-            <em>生产环境只把 `/` 路由到 fresh nonce helper，其余 Science 路径转发到沙箱端口。</em>
+            <span data-i18n="network.publicPort">公网入口</span>
+            <code id="publicRouteSummary" data-i18n="network.routeSummaryFallback">根路径生成 fresh nonce；其他路径转发沙箱 Science</code>
+            <button class="secondary-btn fixed" id="openPublicBtn" type="button" data-i18n="network.open">打开</button>
+            <em data-i18n="network.publicHelp">生产环境只把 `/` 路由到 fresh nonce helper，其余 Science 路径转发到沙箱端口。</em>
           </div>
           <div class="route-grid" aria-label="公网反代规则">
-            <div class="route-row route-head"><span>外部路径</span><span>目标</span><span>用途</span></div>
-            <div class="route-row"><span>/</span><code id="publicRootTarget">127.0.0.1:8992</code><em>fresh nonce</em></div>
-            <div class="route-row"><span>/*</span><code id="publicSandboxTarget">127.0.0.1:8990</code><em>Science 沙箱</em></div>
+            <div class="route-row route-head"><span data-i18n="network.routeExternal">外部路径</span><span data-i18n="network.routeTarget">目标</span><span data-i18n="network.routePurpose">用途</span></div>
+            <div class="route-row"><span>/</span><code id="publicRootTarget">127.0.0.1:8992</code><em data-i18n="network.freshNonce">fresh nonce</em></div>
+            <div class="route-row"><span>/*</span><code id="publicSandboxTarget">127.0.0.1:8990</code><em data-i18n="network.sandboxScience">Science 沙箱</em></div>
           </div>
         </section>
 
         <section id="logPane" class="tab-pane" role="tabpanel" aria-labelledby="tabLog" hidden>
           <div class="pane-head compact">
             <div>
-              <h2>运行日志</h2>
-              <p>读取 <code>~/.csnative/logs/csnative.log</code>，记录启动、停止、验证、自检和配置动作。</p>
+              <h2 data-i18n="log.title">运行日志</h2>
+              <p data-i18n-html="log.desc">读取 <code>~/.csnative/logs/csnative.log</code>，记录启动、停止、验证、自检和配置动作。</p>
             </div>
             <div class="log-actions">
-              <button class="secondary-btn fixed" id="refreshLogBtn" type="button">刷新</button>
-              <button class="secondary-btn fixed" id="openLogDirBtn" type="button">目录</button>
-              <button class="secondary-btn danger fixed" id="clearLogBtn" type="button">清空</button>
+              <button class="secondary-btn fixed" id="refreshLogBtn" type="button" data-i18n="log.refresh">刷新</button>
+              <button class="secondary-btn fixed" id="openLogDirBtn" type="button" data-i18n="log.dir">目录</button>
+              <button class="secondary-btn danger fixed" id="clearLogBtn" type="button" data-i18n="log.clear">清空</button>
             </div>
           </div>
-          <pre id="logOutput" class="log-output">正在读取日志。</pre>
+          <pre id="logOutput" class="log-output" data-i18n="log.loading">正在读取日志。</pre>
         </section>
 
         <section id="aboutPane" class="tab-pane" role="tabpanel" aria-labelledby="tabAbout" hidden>
-          <div class="pane-head compact"><div><h2>关于 CS Native</h2><p>CSN 是本地 provider/runtime control plane，不是单一模型切换器。</p></div></div>
+          <div class="pane-head compact"><div><h2 data-i18n="about.title">关于 CS Native</h2><p data-i18n="about.desc">CSN 是本地 provider/runtime control plane，不是单一模型切换器。</p></div></div>
           <div class="about-summary">
-            <div><span>产品</span><strong>CS Native</strong></div>
-            <div><span>版本</span><strong id="aboutVersion">0.1.0</strong></div>
-            <div><span>品牌</span><strong>eust-w</strong></div>
+            <div><span data-i18n="about.product">产品</span><strong>CS Native</strong></div>
+            <div><span data-i18n="about.version">版本</span><strong id="aboutVersion">0.1.0</strong></div>
+            <div><span data-i18n="about.brand">品牌</span><strong>eust-w</strong></div>
           </div>
           <div class="tool-grid">
-            <button class="tool-btn" id="openBrowserBtn" type="button"><span>↗</span><strong>浏览器面板</strong><em>打开当前 Science URL</em></button>
-            <button class="tool-btn" id="doctorBtn" type="button"><span>✓</span><strong>自检</strong><em>检查配置和环境</em></button>
-            <button class="tool-btn" id="reportBtn" type="button"><span>!</span><strong>反馈</strong><em>提交问题报告</em></button>
-            <button class="tool-btn" id="updateBtn" type="button"><span>↻</span><strong>更新</strong><em>查看最新版本</em></button>
+            <button class="tool-btn" id="openBrowserBtn" type="button"><span>↗</span><strong data-i18n="about.openBrowser">浏览器面板</strong><em data-i18n="about.openBrowserDesc">打开当前 Science URL</em></button>
+            <button class="tool-btn" id="doctorBtn" type="button"><span>✓</span><strong data-i18n="about.doctor">自检</strong><em data-i18n="about.doctorDesc">检查配置和环境</em></button>
+            <button class="tool-btn" id="reportBtn" type="button"><span>!</span><strong data-i18n="about.report">反馈</strong><em data-i18n="about.reportDesc">提交问题报告</em></button>
+            <button class="tool-btn" id="updateBtn" type="button"><span>↻</span><strong data-i18n="about.update">更新</strong><em data-i18n="about.updateDesc">查看最新版本</em></button>
           </div>
-          <pre id="diagnosticOutput" class="diagnostic-output">诊断输出会显示在这里。</pre>
+          <pre id="diagnosticOutput" class="diagnostic-output" data-i18n="about.diagnosticPlaceholder">诊断输出会显示在这里。</pre>
         </section>
 
-        <div class="msg" id="msg">就绪。</div>
+        <div class="msg" id="msg" data-i18n="msg.ready">就绪。</div>
       </section>
     </main>
   </body>

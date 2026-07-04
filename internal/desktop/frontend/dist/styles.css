@@ -118,6 +118,22 @@ button:disabled { cursor: default; opacity: 0.55; }
   color: var(--muted);
   font-size: 10px;
 }
+.language-field {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 3px;
+}
+.language-field span {
+  color: #596879;
+  font-size: 10px;
+  font-weight: 680;
+}
+.language-field select {
+  min-height: 28px;
+  padding: 4px 7px;
+  border-radius: 6px;
+  font-size: 11px;
+}
 .side-health, .side-version {
   display: flex;
   align-items: center;
@@ -849,6 +865,27 @@ code {
 .mode-official .tp-only { display: none; }
 .mode-official .official-only { display: block; }
 
+html[dir="rtl"] .sidebar {
+  border-right: 0;
+  border-left: 1px solid var(--border);
+}
+html[dir="rtl"] .nav-item,
+html[dir="rtl"] .provider-list-item,
+html[dir="rtl"] .tool-btn {
+  text-align: right;
+}
+html[dir="rtl"] .side-health,
+html[dir="rtl"] .provider-flags label,
+html[dir="rtl"] .inline-field,
+html[dir="rtl"] .launch-panel,
+html[dir="rtl"] .log-actions {
+  direction: rtl;
+}
+html[dir="rtl"] .storage-box em,
+html[dir="rtl"] .url-preview em {
+  grid-column: 1 / span 2;
+}
+
 @media (max-width: 760px) {
   html, body { overflow: auto; }
   .panel {
@@ -877,7 +914,16 @@ code {
     grid-template-columns: 18px auto;
     padding-right: 12px;
   }
-  .sidebar-footer { display: none; }
+  .sidebar-footer {
+    display: grid;
+    grid-template-columns: minmax(150px, 220px);
+    padding: 8px 0 0;
+  }
+  .side-health,
+  .side-path,
+  .side-version {
+    display: none;
+  }
   .workspace {
     height: auto;
     overflow: visible;
@@ -937,4 +983,8 @@ code {
     align-items: stretch;
   }
   .secondary-btn.fixed { flex-basis: auto; }
+  html[dir="rtl"] .icon-btn {
+    right: auto;
+    left: 12px;
+  }
 }

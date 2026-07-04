@@ -118,6 +118,33 @@ code {
   font-weight: 650;
 }
 
+.header-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.site-language {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.site-language select {
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 650;
+  padding: 0.38rem 0.58rem;
+}
+
 .nav a,
 .header-action {
   transition:
@@ -512,11 +539,50 @@ figcaption {
   color: var(--blue);
 }
 
+html[dir="rtl"] body {
+  text-align: right;
+}
+
+html[dir="rtl"] .brand,
+html[dir="rtl"] .site-header,
+html[dir="rtl"] .nav,
+html[dir="rtl"] .header-tools,
+html[dir="rtl"] .hero-actions,
+html[dir="rtl"] .download-actions,
+html[dir="rtl"] .site-footer {
+  direction: rtl;
+}
+
+html[dir="rtl"] .hero {
+  background:
+    linear-gradient(270deg, rgba(248, 250, 252, 0.98) 0%, rgba(248, 250, 252, 0.94) 40%, rgba(248, 250, 252, 0.72) 64%, rgba(248, 250, 252, 0.32) 100%),
+    #f8fafc;
+}
+
+html[dir="rtl"] .hero-media {
+  inset: 8rem auto 0 -16vw;
+}
+
+html[dir="rtl"] .check-list li {
+  padding-right: 1.35rem;
+  padding-left: 0;
+}
+
+html[dir="rtl"] .check-list li::before {
+  right: 0;
+  left: auto;
+}
+
 @media (max-width: 900px) {
   .site-header {
     align-items: flex-start;
     flex-direction: column;
     padding: 1rem 5vw;
+  }
+
+  .header-tools {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .nav {
@@ -542,6 +608,10 @@ figcaption {
     inset: auto;
     width: 100%;
     padding: 0 5vw 3rem;
+  }
+
+  html[dir="rtl"] .hero-media {
+    inset: auto;
   }
 
   .hero-inner {
