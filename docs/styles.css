@@ -184,8 +184,9 @@ code {
 
 .hero-media {
   position: absolute;
-  inset: 8rem -16vw 0 auto;
-  width: min(63vw, 960px);
+  top: clamp(8rem, 18vh, 11rem);
+  right: 4vw;
+  width: min(34vw, 680px);
   pointer-events: none;
 }
 
@@ -560,7 +561,8 @@ html[dir="rtl"] .hero {
 }
 
 html[dir="rtl"] .hero-media {
-  inset: 8rem auto 0 -16vw;
+  right: auto;
+  left: 4vw;
 }
 
 html[dir="rtl"] .check-list li {
