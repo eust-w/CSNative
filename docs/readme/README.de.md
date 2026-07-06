@@ -12,10 +12,6 @@
 </p>
 
 <p align="center">
-  Chinesisch ist die Standard-README. Klicke auf eine Flagge, um die jeweilige Markdown-Version zu öffnen.
-</p>
-
-<p align="center">
   <a href="https://github.com/eust-w/CSNative/actions/workflows/release.yml"><img src="https://github.com/eust-w/CSNative/actions/workflows/release.yml/badge.svg" alt="Release workflow" /></a>
   <a href="https://github.com/eust-w/CSNative/actions/workflows/pages.yml"><img src="https://github.com/eust-w/CSNative/actions/workflows/pages.yml/badge.svg" alt="Pages workflow" /></a>
   <a href="https://github.com/eust-w/CSNative/releases/latest"><img src="https://img.shields.io/github/v/release/eust-w/CSNative?label=release" alt="Latest release" /></a>
@@ -57,11 +53,10 @@ CS Native ist kein einzelner DeepSeek/Qwen-Umschalter. Es ist ein lokales Contro
 
 ## i18n
 
-CS Native nutzt Chinesisch als Standardsprache und unterstuetzt `zh-CN`, `en`, `ko`, `ar`, `de`, `fr` und `la`.
+CS Native unterstuetzt `zh-CN`, `en`, `ko`, `ar`, `de`, `fr` und `la`.
 
 - Desktop-App: Sprachauswahl in der Seitenleiste.
 - GitHub Pages: Sprachauswahl im Header.
-- README: statische Flaggenlinks, weil GitHub Markdown keine Sprachwechsel-Skripte ausfuehrt.
 - Arabisch nutzt RTL-Layout in App und Website.
 
 ## Oberflaechen

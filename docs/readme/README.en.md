@@ -12,10 +12,6 @@
 </p>
 
 <p align="center">
-  Chinese is the default README. Click a flag to open another localized Markdown version.
-</p>
-
-<p align="center">
   <a href="https://github.com/eust-w/CSNative/actions/workflows/release.yml"><img src="https://github.com/eust-w/CSNative/actions/workflows/release.yml/badge.svg" alt="Release workflow" /></a>
   <a href="https://github.com/eust-w/CSNative/actions/workflows/pages.yml"><img src="https://github.com/eust-w/CSNative/actions/workflows/pages.yml/badge.svg" alt="Pages workflow" /></a>
   <a href="https://github.com/eust-w/CSNative/releases/latest"><img src="https://img.shields.io/github/v/release/eust-w/CSNative?label=release" alt="Latest release" /></a>
@@ -57,11 +53,10 @@ CS Native is not a single DeepSeek/Qwen switcher. It is a local control panel fo
 
 ## i18n
 
-CS Native defaults to Chinese and supports `zh-CN`, `en`, `ko`, `ar`, `de`, `fr`, and `la`.
+CS Native supports `zh-CN`, `en`, `ko`, `ar`, `de`, `fr`, and `la`.
 
 - Desktop app: language selector in the sidebar.
 - GitHub Pages: language selector in the header.
-- README: static flag links, because GitHub Markdown does not run language-switching scripts.
 - Arabic uses RTL layout in the app and website.
 
 ## Screens

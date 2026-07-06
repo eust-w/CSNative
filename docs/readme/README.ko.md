@@ -12,10 +12,6 @@
 </p>
 
 <p align="center">
-  기본 README는 중국어입니다. 위 국기를 클릭하면 해당 언어의 Markdown 문서로 이동합니다.
-</p>
-
-<p align="center">
   <a href="https://github.com/eust-w/CSNative/actions/workflows/release.yml"><img src="https://github.com/eust-w/CSNative/actions/workflows/release.yml/badge.svg" alt="Release workflow" /></a>
   <a href="https://github.com/eust-w/CSNative/actions/workflows/pages.yml"><img src="https://github.com/eust-w/CSNative/actions/workflows/pages.yml/badge.svg" alt="Pages workflow" /></a>
   <a href="https://github.com/eust-w/CSNative/releases/latest"><img src="https://img.shields.io/github/v/release/eust-w/CSNative?label=release" alt="Latest release" /></a>
@@ -57,11 +53,10 @@ CS Native는 단일 DeepSeek/Qwen 스위처가 아닙니다. 다음을 관리하
 
 ## i18n
 
-CS Native의 기본 언어는 중국어이며 `zh-CN`, `en`, `ko`, `ar`, `de`, `fr`, `la`를 지원합니다.
+CS Native는 `zh-CN`, `en`, `ko`, `ar`, `de`, `fr`, `la`를 지원합니다.
 
 - 데스크톱 앱: 사이드바의 언어 선택기.
 - GitHub Pages: 헤더의 언어 선택기.
-- README: GitHub Markdown이 스크립트 전환을 지원하지 않으므로 정적 국기 링크를 사용합니다.
 - 아랍어는 앱과 웹사이트에서 RTL 레이아웃을 사용합니다.
 
 ## 화면

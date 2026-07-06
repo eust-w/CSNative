@@ -12,10 +12,6 @@
 </p>
 
 <p align="center">
-  Sinica lingua est forma primaria. Signum vexilli preme ut aliam versionem Markdown aperias.
-</p>
-
-<p align="center">
   <a href="https://github.com/eust-w/CSNative/actions/workflows/release.yml"><img src="https://github.com/eust-w/CSNative/actions/workflows/release.yml/badge.svg" alt="Release workflow" /></a>
   <a href="https://github.com/eust-w/CSNative/actions/workflows/pages.yml"><img src="https://github.com/eust-w/CSNative/actions/workflows/pages.yml/badge.svg" alt="Pages workflow" /></a>
   <a href="https://github.com/eust-w/CSNative/releases/latest"><img src="https://img.shields.io/github/v/release/eust-w/CSNative?label=release" alt="Latest release" /></a>
@@ -57,11 +53,10 @@ CS Native non est simplex commutator DeepSeek/Qwen. Est tabula localis ad admini
 
 ## i18n
 
-CS Native Sinicam linguam pro defecto adhibet et sustinet `zh-CN`, `en`, `ko`, `ar`, `de`, `fr`, et `la`.
+CS Native sustinet `zh-CN`, `en`, `ko`, `ar`, `de`, `fr`, et `la`.
 
 - Applicatio desktop: selector linguae in latere.
 - GitHub Pages: selector linguae in capite paginae.
-- README: nexus vexillorum statici, quia GitHub Markdown scripta mutationis linguae non currit.
 - Arabica lingua directionem RTL in applicatione et situ adhibet.
 
 ## Imagines
