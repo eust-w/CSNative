@@ -307,6 +307,7 @@ func (s *Server) handleAnthropic(w http.ResponseWriter, req MessageRequest) {
 	target := s.provider.ResolveModel(req.Model)
 	body.Model = target
 	body.MaxTokens = s.provider.ClampMaxTokens(req.MaxTokens, target)
+	body = s.sanitizeAnthropicRequest(body)
 	data, _ := json.Marshal(body)
 	h := map[string]string{"x-api-key": s.cfg.Key, "content-type": "application/json", "anthropic-version": "2023-06-01"}
 	resp, err := s.post(data, h)
@@ -320,6 +321,33 @@ func (s *Server) handleAnthropic(w http.ResponseWriter, req MessageRequest) {
 		return
 	}
 	copyResponse(w, resp)
+}
+
+func (s *Server) sanitizeAnthropicRequest(req MessageRequest) MessageRequest {
+	if req.Thinking != nil {
+		req.Thinking = sanitizeThinking(req.Thinking)
+		req.ToolChoice = nil
+	}
+	if req.Thinking == nil && req.ToolChoice != nil {
+		if t, _ := req.ToolChoice["type"].(string); t == "auto" && len(req.ToolChoice) == 1 {
+			req.ToolChoice = nil
+		}
+	}
+	return req
+}
+
+func sanitizeThinking(v any) any {
+	m, ok := v.(map[string]any)
+	if !ok {
+		return nil
+	}
+	t, _ := m["type"].(string)
+	switch t {
+	case "enabled", "disabled", "adaptive":
+		return v
+	default:
+		return nil
+	}
 }
 
 func (s *Server) handleOpenAI(w http.ResponseWriter, req MessageRequest) {

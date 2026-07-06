@@ -40,6 +40,46 @@ func TestQwenModelMappingAndAnthropicToOpenAI(t *testing.T) {
 	}
 }
 
+func TestQwenOpenAIAdapterDoesNotForwardAnthropicThinking(t *testing.T) {
+	var upstreamBody map[string]any
+	up := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := json.NewDecoder(r.Body).Decode(&upstreamBody); err != nil {
+			t.Fatalf("decode upstream body: %v", err)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"id":      "chatcmpl-test",
+			"choices": []map[string]any{{"finish_reason": "stop", "message": map[string]any{"role": "assistant", "content": "ok"}}},
+			"usage":   map[string]any{"prompt_tokens": 1, "completion_tokens": 1},
+		})
+	}))
+	defer up.Close()
+	srv := NewServer(ServerConfig{Provider: "qwen", Key: "fake", Secret: "sec", UpstreamOverride: up.URL})
+	ts := httptest.NewServer(srv.Handler())
+	defer ts.Close()
+
+	body := `{
+		"model":"claude-opus-4-8",
+		"messages":[{"role":"user","content":"ping"}],
+		"thinking":{"type":"auto"},
+		"tool_choice":{"type":"auto"}
+	}`
+	res, err := http.Post(ts.URL+"/sec/v1/messages", "application/json", strings.NewReader(body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, _ := io.ReadAll(res.Body)
+	res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("bad status=%d body=%s", res.StatusCode, data)
+	}
+	if _, ok := upstreamBody["thinking"]; ok {
+		t.Fatalf("qwen openai request forwarded thinking: %#v", upstreamBody)
+	}
+	if got := upstreamBody["tool_choice"]; got != "auto" {
+		t.Fatalf("qwen tool_choice was not converted to OpenAI auto: %#v", upstreamBody)
+	}
+}
+
 func TestProviderFromProfileBuildsAdapterModes(t *testing.T) {
 	deepseek := config.BuiltinProviders()["deepseek"]
 	if got := ProviderFromProfile(deepseek); got.Mode != ModeAnthropic || got.URL == "" {
@@ -49,6 +89,182 @@ func TestProviderFromProfileBuildsAdapterModes(t *testing.T) {
 	got := ProviderFromProfile(openrouter)
 	if got.Mode != ModeOpenAI || got.ResolveModel("claude-sonnet-4-6") != openrouter.DefaultModel {
 		t.Fatalf("openrouter profile did not build openai provider: %#v", got)
+	}
+}
+
+func TestDeepSeekAnthropicRequestDropsIncompatibleThinkingToolChoice(t *testing.T) {
+	var upstreamBody map[string]any
+	up := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := json.NewDecoder(r.Body).Decode(&upstreamBody); err != nil {
+			t.Fatalf("decode upstream body: %v", err)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"id":            "msg_test",
+			"type":          "message",
+			"role":          "assistant",
+			"model":         "deepseek-v4-flash",
+			"content":       []map[string]any{{"type": "text", "text": "ok"}},
+			"stop_reason":   "end_turn",
+			"stop_sequence": nil,
+			"usage":         map[string]any{"input_tokens": 1, "output_tokens": 1},
+		})
+	}))
+	defer up.Close()
+	srv := NewServer(ServerConfig{Provider: "deepseek", Key: "fake", Secret: "sec", UpstreamOverride: up.URL})
+	ts := httptest.NewServer(srv.Handler())
+	defer ts.Close()
+
+	body := `{
+		"model":"claude-sonnet-5-20260101",
+		"max_tokens":100000,
+		"messages":[{"role":"user","content":"ping"}],
+		"thinking":{"type":"auto"},
+		"tool_choice":{"type":"auto"}
+	}`
+	res, err := http.Post(ts.URL+"/sec/v1/messages", "application/json", strings.NewReader(body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, _ := io.ReadAll(res.Body)
+	res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("bad status=%d body=%s", res.StatusCode, data)
+	}
+	if _, ok := upstreamBody["thinking"]; ok {
+		t.Fatalf("deepseek request kept thinking: %#v", upstreamBody)
+	}
+	if _, ok := upstreamBody["tool_choice"]; ok {
+		t.Fatalf("deepseek request kept tool_choice with thinking: %#v", upstreamBody)
+	}
+	if got := upstreamBody["model"]; got != "deepseek-v4-flash" {
+		t.Fatalf("model mapping changed: %v", got)
+	}
+	if got := upstreamBody["max_tokens"]; got != float64(32768) {
+		t.Fatalf("max_tokens clamp changed: %v", got)
+	}
+}
+
+func TestCustomAnthropicProviderSanitizesThinkingToolChoice(t *testing.T) {
+	var upstreamBodies []map[string]any
+	up := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var body map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			t.Fatalf("decode upstream body: %v", err)
+		}
+		upstreamBodies = append(upstreamBodies, body)
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"id":            "msg_test",
+			"type":          "message",
+			"role":          "assistant",
+			"model":         "custom-model",
+			"content":       []map[string]any{{"type": "text", "text": "ok"}},
+			"stop_reason":   "end_turn",
+			"stop_sequence": nil,
+			"usage":         map[string]any{"input_tokens": 1, "output_tokens": 1},
+		})
+	}))
+	defer up.Close()
+	profile := config.ProviderProfile{
+		ID:           "custom-anthropic",
+		Adapter:      "anthropic_messages",
+		BaseURL:      up.URL,
+		DefaultModel: "custom-model",
+	}
+	srv := NewServer(ServerConfig{Profile: profile, Key: "fake", Secret: "sec"})
+	ts := httptest.NewServer(srv.Handler())
+	defer ts.Close()
+
+	for _, body := range []string{
+		`{"model":"claude-sonnet-5","messages":[{"role":"user","content":"ping"}],"thinking":{"type":"auto"},"tool_choice":{"type":"tool","name":"search"}}`,
+		`{"model":"claude-sonnet-5","messages":[{"role":"user","content":"ping"}],"thinking":{"type":"enabled","budget_tokens":1024},"tool_choice":{"type":"auto"}}`,
+	} {
+		res, err := http.Post(ts.URL+"/sec/v1/messages", "application/json", strings.NewReader(body))
+		if err != nil {
+			t.Fatal(err)
+		}
+		data, _ := io.ReadAll(res.Body)
+		res.Body.Close()
+		if res.StatusCode != http.StatusOK {
+			t.Fatalf("bad status=%d body=%s", res.StatusCode, data)
+		}
+	}
+	if len(upstreamBodies) != 2 {
+		t.Fatalf("upstream calls = %d", len(upstreamBodies))
+	}
+	if _, ok := upstreamBodies[0]["thinking"]; ok {
+		t.Fatalf("custom provider kept unsupported auto thinking: %#v", upstreamBodies[0])
+	}
+	if _, ok := upstreamBodies[0]["tool_choice"]; ok {
+		t.Fatalf("custom provider kept tool_choice with auto thinking: %#v", upstreamBodies[0])
+	}
+	thinking, ok := upstreamBodies[1]["thinking"].(map[string]any)
+	if !ok || thinking["type"] != "enabled" {
+		t.Fatalf("custom provider did not keep supported thinking: %#v", upstreamBodies[1])
+	}
+	if _, ok := upstreamBodies[1]["tool_choice"]; ok {
+		t.Fatalf("custom provider kept tool_choice with supported thinking: %#v", upstreamBodies[1])
+	}
+}
+
+func TestAllBuiltinProvidersHandleScienceThinkingFields(t *testing.T) {
+	for id, profile := range config.BuiltinProviders() {
+		t.Run(id, func(t *testing.T) {
+			var upstreamBody map[string]any
+			up := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if err := json.NewDecoder(r.Body).Decode(&upstreamBody); err != nil {
+					t.Fatalf("decode upstream body: %v", err)
+				}
+				if profile.Adapter == "anthropic_messages" {
+					_ = json.NewEncoder(w).Encode(map[string]any{
+						"id":            "msg_test",
+						"type":          "message",
+						"role":          "assistant",
+						"model":         profile.DefaultModel,
+						"content":       []map[string]any{{"type": "text", "text": "ok"}},
+						"stop_reason":   "end_turn",
+						"stop_sequence": nil,
+						"usage":         map[string]any{"input_tokens": 1, "output_tokens": 1},
+					})
+					return
+				}
+				_ = json.NewEncoder(w).Encode(map[string]any{
+					"id":      "chatcmpl-test",
+					"choices": []map[string]any{{"finish_reason": "stop", "message": map[string]any{"role": "assistant", "content": "ok"}}},
+					"usage":   map[string]any{"prompt_tokens": 1, "completion_tokens": 1},
+				})
+			}))
+			defer up.Close()
+			profile.BaseURL = up.URL
+			srv := NewServer(ServerConfig{Profile: profile, Key: "fake", Secret: "sec"})
+			ts := httptest.NewServer(srv.Handler())
+			defer ts.Close()
+
+			body := `{
+				"model":"claude-sonnet-5-20260101",
+				"messages":[{"role":"user","content":"ping"}],
+				"thinking":{"type":"auto"},
+				"tool_choice":{"type":"auto"}
+			}`
+			res, err := http.Post(ts.URL+"/sec/v1/messages", "application/json", strings.NewReader(body))
+			if err != nil {
+				t.Fatal(err)
+			}
+			data, _ := io.ReadAll(res.Body)
+			res.Body.Close()
+			if res.StatusCode != http.StatusOK {
+				t.Fatalf("bad status=%d body=%s", res.StatusCode, data)
+			}
+			if _, ok := upstreamBody["thinking"]; ok {
+				t.Fatalf("provider forwarded unsupported thinking: %#v", upstreamBody)
+			}
+			if profile.Adapter == "anthropic_messages" {
+				if _, ok := upstreamBody["tool_choice"]; ok {
+					t.Fatalf("anthropic provider forwarded tool_choice with thinking: %#v", upstreamBody)
+				}
+			} else if got := upstreamBody["tool_choice"]; got != "auto" {
+				t.Fatalf("openai provider did not convert tool_choice to OpenAI auto: %#v", upstreamBody)
+			}
+		})
 	}
 }
 
