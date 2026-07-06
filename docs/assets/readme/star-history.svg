@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">CS Native Star History</title>
+  <desc id="desc">Star growth chart for eust-w/CSNative from 2026-07-05 to 2026-07-06, ending at 40 stars.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fbff"/>
+      <stop offset="1" stop-color="#eef6ff"/>
+    </linearGradient>
+    <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2563eb" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#22c55e" stop-opacity="0.05"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect x="16" y="16" width="928" height="508" rx="22" fill="url(#bg)" stroke="#d8e3f2" filter="url(#shadow)"/>
+  <text x="48" y="64" fill="#0f172a" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="28" font-weight="800">CS Native Star History</text>
+  <text x="48" y="94" fill="#64748b" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15">eust-w/CSNative - 40 stars - updated 2026-07-06</text>
+  <line x1="76" y1="468.0" x2="924" y2="468.0" stroke="#dbe6f3" stroke-width="1"/>
+  <text x="60" y="473.0" fill="#64748b" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">0</text>
+  <line x1="76" y1="364.0" x2="924" y2="364.0" stroke="#dbe6f3" stroke-width="1"/>
+  <text x="60" y="369.0" fill="#64748b" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">10</text>
+  <line x1="76" y1="260.0" x2="924" y2="260.0" stroke="#dbe6f3" stroke-width="1"/>
+  <text x="60" y="265.0" fill="#64748b" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">20</text>
+  <line x1="76" y1="156.0" x2="924" y2="156.0" stroke="#dbe6f3" stroke-width="1"/>
+  <text x="60" y="161.0" fill="#64748b" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">30</text>
+  <line x1="76" y1="52.0" x2="924" y2="52.0" stroke="#dbe6f3" stroke-width="1"/>
+  <text x="60" y="57.0" fill="#64748b" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">40</text>
+  <text x="76.0" y="506" fill="#64748b" text-anchor="middle" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">2026-07-05</text>
+  <text x="500.0" y="506" fill="#64748b" text-anchor="middle" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">2026-07-05</text>
+  <text x="924.0" y="506" fill="#64748b" text-anchor="middle" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">2026-07-06</text>
+  <polyline points="76,468 76.0,457.6 83.3,447.2 97.1,436.8 128.9,426.4 136.7,416.0 138.5,405.6 147.7,395.2 152.6,384.8 152.8,374.4 170.3,364.0 232.0,353.6 235.7,343.2 239.5,332.8 256.7,322.4 304.6,312.0 305.9,301.6 393.1,291.2 397.6,280.8 421.6,270.4 449.7,260.0 460.7,249.6 533.1,239.2 552.7,228.8 578.0,218.4 614.7,208.0 630.7,197.6 647.2,187.2 685.2,176.8 725.6,166.4 728.8,156.0 756.3,145.6 771.6,135.2 778.8,124.8 784.5,114.4 824.9,104.0 858.8,93.6 877.5,83.2 894.3,72.8 913.4,62.4 924.0,52.0 924,468" fill="url(#fill)" stroke="none"/>
+  <polyline points="76.0,457.6 83.3,447.2 97.1,436.8 128.9,426.4 136.7,416.0 138.5,405.6 147.7,395.2 152.6,384.8 152.8,374.4 170.3,364.0 232.0,353.6 235.7,343.2 239.5,332.8 256.7,322.4 304.6,312.0 305.9,301.6 393.1,291.2 397.6,280.8 421.6,270.4 449.7,260.0 460.7,249.6 533.1,239.2 552.7,228.8 578.0,218.4 614.7,208.0 630.7,197.6 647.2,187.2 685.2,176.8 725.6,166.4 728.8,156.0 756.3,145.6 771.6,135.2 778.8,124.8 784.5,114.4 824.9,104.0 858.8,93.6 877.5,83.2 894.3,72.8 913.4,62.4 924.0,52.0" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="76.0" cy="457.6" r="5" fill="#ffffff" stroke="#2563eb" stroke-width="3"/>
+  <circle cx="924.0" cy="52.0" r="5" fill="#ffffff" stroke="#2563eb" stroke-width="3"/>
+  <g transform="translate(725, 72)">
+    <rect width="178" height="76" rx="14" fill="#ffffff" stroke="#d8e3f2"/>
+    <text x="18" y="30" fill="#0f172a" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700">Latest</text>
+    <text x="18" y="58" fill="#2563eb" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="800">40 stars</text>
+  </g>
+</svg>
