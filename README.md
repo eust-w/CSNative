@@ -317,3 +317,13 @@ http://127.0.0.1:4179/
 CS Native 使用 `CSN` 作为应用识别标记，并保留 `eust-w` 品牌方向。产品定位见 [docs/brand.md](docs/brand.md)。
 
 ![移动端启动页](docs/assets/readme/mobile-start.png)
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=eust-w%2FCSNative&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=eust-w/CSNative&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=eust-w/CSNative&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=eust-w/CSNative&type=date&legend=top-left" />
+ </picture>
+</a>
