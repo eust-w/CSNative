@@ -320,6 +320,10 @@ func (s *Server) handleAnthropic(w http.ResponseWriter, req MessageRequest) {
 		forwardUpstreamError(w, resp)
 		return
 	}
+	if req.Stream && strings.Contains(resp.Header.Get("Content-Type"), "text/event-stream") {
+		copySSEResponse(w, resp)
+		return
+	}
 	copyResponse(w, resp)
 }
 
@@ -331,6 +335,39 @@ func (s *Server) sanitizeAnthropicRequest(req MessageRequest) MessageRequest {
 	if req.Thinking == nil && req.ToolChoice != nil {
 		if t, _ := req.ToolChoice["type"].(string); t == "auto" && len(req.ToolChoice) == 1 {
 			req.ToolChoice = nil
+		}
+	}
+	// Drop server-side built-in tools that carry no input_schema. Claude
+	// Science sends tools like `web_search` as {name: "web_search"}
+	// (Anthropic server-side tools). Strict upstreams reject them, e.g.
+	// DeepSeek: "Invalid schema for function 'web_search': null is not of
+	// types \"boolean\", \"object\"".
+	if len(req.Tools) > 0 {
+		kept := req.Tools[:0]
+		for _, t := range req.Tools {
+			if len(t.InputSchema) == 0 {
+				continue
+			}
+			kept = append(kept, t)
+		}
+		req.Tools = kept
+	}
+	// Replace image content blocks with a text placeholder. Upstreams routed
+	// through litellm/OpenAI reject them: "Invalid value: input_image,
+	// Supported values are: input_text" (HTTP 400).
+	for i := range req.Messages {
+		blocks, ok := req.Messages[i].Content.([]any)
+		if !ok {
+			continue
+		}
+		for j, b := range blocks {
+			m, ok := b.(map[string]any)
+			if !ok {
+				continue
+			}
+			if t, _ := m["type"].(string); t == "image" {
+				blocks[j] = map[string]any{"type": "text", "text": "[image omitted]"}
+			}
 		}
 	}
 	return req
@@ -449,6 +486,77 @@ func copyResponse(w http.ResponseWriter, resp *http.Response) {
 	}
 	w.WriteHeader(resp.StatusCode)
 	_, _ = io.Copy(w, resp.Body)
+}
+
+// copySSEResponse streams an Anthropic SSE response to the client while
+// dropping duplicate at-most-once events. Some relay upstreams emit
+// `message_start` twice (same message id) at the start of a stream; Anthropic
+// SSE allows exactly one per stream and Claude Science aborts with
+// "Unexpected event order, got message_start before receiving message_stop"
+// on the second one. Everything else is forwarded unchanged, event by event.
+func copySSEResponse(w http.ResponseWriter, resp *http.Response) {
+	hdr := w.Header()
+	for k, vals := range resp.Header {
+		if strings.EqualFold(k, "Content-Length") || strings.EqualFold(k, "Content-Encoding") {
+			continue
+		}
+		for _, v := range vals {
+			hdr.Add(k, v)
+		}
+	}
+	w.WriteHeader(resp.StatusCode)
+	flusher, _ := w.(http.Flusher)
+
+	// Anthropic SSE: "event: <type>\n", one or more "data: ...\n", then a
+	// blank line. Accumulate lines for the current event; on the blank line
+	// either forward the event or drop it (duplicate at-most-once event).
+	atMostOnce := map[string]bool{"message_start": true, "message_stop": true}
+	seen := map[string]bool{}
+
+	var (
+		curType  string
+		curLines [][]byte
+	)
+	emit := func() {
+		for _, l := range curLines {
+			_, _ = w.Write(l)
+			_, _ = w.Write([]byte("\n"))
+		}
+		_, _ = w.Write([]byte("\n"))
+		if flusher != nil {
+			flusher.Flush()
+		}
+	}
+
+	scanner := bufio.NewScanner(resp.Body)
+	scanner.Buffer(make([]byte, 0, 64*1024), 4*1024*1024)
+	for scanner.Scan() {
+		line := append([]byte(nil), scanner.Bytes()...)
+		if len(bytes.TrimSpace(line)) == 0 {
+			if curType != "" && atMostOnce[curType] {
+				if seen[curType] {
+					curType = ""
+					curLines = nil
+					continue
+				}
+				seen[curType] = true
+			}
+			emit()
+			curType = ""
+			curLines = nil
+			continue
+		}
+		if bytes.HasPrefix(line, []byte("event:")) {
+			curType = strings.TrimSpace(strings.TrimPrefix(string(line), "event:"))
+		}
+		curLines = append(curLines, line)
+	}
+	// Trailing event without a blank-line terminator.
+	if len(curLines) > 0 {
+		if curType == "" || !atMostOnce[curType] || !seen[curType] {
+			emit()
+		}
+	}
 }
 
 func writeJSON(w http.ResponseWriter, code int, v any) {
