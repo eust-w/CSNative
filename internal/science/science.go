@@ -12,12 +12,14 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
 )
 
 const ScienceBin = "/Applications/Claude Science.app/Contents/Resources/bin/claude-science"
+const ScienceBinEnv = "CSNATIVE_SCIENCE_BIN"
 
 type Manager struct {
 	ScienceBin  string
@@ -25,7 +27,7 @@ type Manager struct {
 }
 
 func NewManager(configDir string) *Manager {
-	return &Manager{ScienceBin: ScienceBin, SandboxHome: filepath.Join(configDir, "sandbox", "home")}
+	return &Manager{ScienceBin: DefaultScienceBin(), SandboxHome: filepath.Join(configDir, "sandbox", "home")}
 }
 
 func (m *Manager) DataDir() string { return filepath.Join(m.SandboxHome, ".claude-science") }
@@ -149,6 +151,18 @@ func (m *Manager) Running(port uint16) bool {
 func (m *Manager) bin() string {
 	if m.ScienceBin != "" {
 		return m.ScienceBin
+	}
+	return DefaultScienceBin()
+}
+
+func DefaultScienceBin() string {
+	if path := strings.TrimSpace(os.Getenv(ScienceBinEnv)); path != "" {
+		return path
+	}
+	if runtime.GOOS == "linux" {
+		if path, err := exec.LookPath("claude-science"); err == nil {
+			return path
+		}
 	}
 	return ScienceBin
 }

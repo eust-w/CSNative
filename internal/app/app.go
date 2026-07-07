@@ -529,10 +529,11 @@ func (a *App) RunDoctor() (string, error) {
 	} else {
 		b.WriteString("✓ 端口配置无冲突\n")
 	}
-	if _, err := os.Stat(science.ScienceBin); err == nil {
+	mgr := science.NewManager(a.configDir)
+	if _, err := os.Stat(mgr.ScienceBin); err == nil {
 		b.WriteString("✓ Science 二进制存在\n")
 	} else {
-		b.WriteString("⚠ 未找到 Science 二进制\n")
+		fmt.Fprintf(&b, "⚠ 未找到 Science 二进制：%s\n", mgr.ScienceBin)
 	}
 	if info, err := os.Stat(filepath.Join(a.configDir, "sandbox", "home")); err == nil && info.IsDir() {
 		fmt.Fprintf(&b, "✓ 沙箱目录存在（权限 %o）\n", info.Mode().Perm())
@@ -558,7 +559,7 @@ func (a *App) RunDoctor() (string, error) {
 	} else {
 		b.WriteString("⚠ 本地代理未运行\n")
 	}
-	if science.NewManager(a.configDir).Running(cfg.SandboxPort) {
+	if mgr.Running(cfg.SandboxPort) {
 		b.WriteString("✓ Science 沙箱正在运行\n")
 	} else if tcpReachable("127.0.0.1", int(cfg.SandboxPort), 300*time.Millisecond) {
 		b.WriteString("⚠ 沙箱端口被占用，但当前沙箱状态不可确认\n")

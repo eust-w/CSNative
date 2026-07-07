@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -71,6 +72,35 @@ func TestProxyAuthURLUsesSecretPathAsBasicAuth(t *testing.T) {
 	got = ProxyAuthURL("http://127.0.0.1:18991")
 	if got != "http://127.0.0.1:18991" {
 		t.Fatalf("ProxyAuthURL() without secret = %q", got)
+	}
+}
+
+func TestDefaultScienceBinUsesEnvironmentOverride(t *testing.T) {
+	bin := filepath.Join(t.TempDir(), "custom-claude-science")
+	t.Setenv(ScienceBinEnv, "  "+bin+"  ")
+
+	if got := DefaultScienceBin(); got != bin {
+		t.Fatalf("DefaultScienceBin() = %q, want %q", got, bin)
+	}
+	if got := NewManager(t.TempDir()).ScienceBin; got != bin {
+		t.Fatalf("NewManager().ScienceBin = %q, want %q", got, bin)
+	}
+}
+
+func TestDefaultScienceBinFindsClaudeScienceOnLinuxPath(t *testing.T) {
+	if runtime.GOOS != "linux" {
+		t.Skip("PATH discovery is only a Linux default")
+	}
+	dir := t.TempDir()
+	bin := filepath.Join(dir, "claude-science")
+	if err := os.WriteFile(bin, []byte("#!/bin/sh\n"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv(ScienceBinEnv, "")
+	t.Setenv("PATH", dir)
+
+	if got := DefaultScienceBin(); got != bin {
+		t.Fatalf("DefaultScienceBin() = %q, want %q", got, bin)
 	}
 }
 
